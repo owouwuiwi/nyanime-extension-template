@@ -40,7 +40,10 @@ def package():
         for path, name in files():
             data = path.read_bytes()
             manifest[name] = hashlib.sha256(data).hexdigest()
-            archive.writestr('placeholder-extension-kit/' + name, data)
+            info = zipfile.ZipInfo('placeholder-extension-kit/' + name)
+            info.create_system = 3
+            info.external_attr = (0o100755 if name == 'gradlew' else 0o100644) << 16
+            archive.writestr(info, data, compress_type=zipfile.ZIP_DEFLATED)
         archive.writestr('placeholder-extension-kit/kit-manifest.json', json.dumps(manifest, indent=2) + '\n')
     with zipfile.ZipFile(output) as archive:
         if archive.testzip():
