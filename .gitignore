@@ -1,0 +1,15 @@
+.gradle/
+.kotlin/
+**/build/
+.local/
+.tools/
+.idea/
+local.properties
+dist/
+website/downloads/
+**/__pycache__/
+*.pyc
+*.jks
+*.keystore
+*.pem
+*.p12

@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "articles": [
+    {
+      "id": "article-01",
+      "url": "news/demo-01/",
+      "title": "DEMO article 01",
+      "publishedAt": 1791936060000,
+      "excerpt": "An original sample article demonstrating a native news reader.",
+      "image": "images/video-01-wide.png",
+      "medium": "ANIME",
+      "category": "development",
+      "body": "This article is original demonstration text. It shows headings, paragraphs, images and exact publication metadata. There are no real catalogue IDs, external publishers, advertisements or tracking scripts."
+    },
+    {
+      "id": "article-02",
+      "url": "news/demo-02/",
+      "title": "DEMO article 02",
+      "publishedAt": 1791936120000,
+      "excerpt": "An original sample article demonstrating a native news reader.",
+      "image": "images/video-02-wide.png",
+      "medium": "MANGA",
+      "category": "development",
+      "body": "This article is original demonstration text. It shows headings, paragraphs, images and exact publication metadata. There are no real catalogue IDs, external publishers, advertisements or tracking scripts."
+    },
+    {
+      "id": "article-03",
+      "url": "news/demo-03/",
+      "title": "DEMO article 03",
+      "publishedAt": 1791936180000,
+      "excerpt": "An original sample article demonstrating a native news reader.",
+      "image": "images/video-03-wide.png",
+      "medium": "ANIME",
+      "category": "development",
+      "body": "This article is original demonstration text. It shows headings, paragraphs, images and exact publication metadata. There are no real catalogue IDs, external publishers, advertisements or tracking scripts."
+    },
+    {
+      "id": "article-04",
+      "url": "news/demo-04/",
+      "title": "DEMO article 04",
+      "publishedAt": 1791936240000,
+      "excerpt": "An original sample article demonstrating a native news reader.",
+      "image": "images/video-04-wide.png",
+      "medium": "MANGA",
+      "category": "development",
+      "body": "This article is original demonstration text. It shows headings, paragraphs, images and exact publication metadata. There are no real catalogue IDs, external publishers, advertisements or tracking scripts."
+    },
+    {
+      "id": "article-05",
+      "url": "news/demo-05/",
+      "title": "DEMO article 05",
+      "publishedAt": 1791936300000,
+      "excerpt": "An original sample article demonstrating a native news reader.",
+      "image": "images/video-05-wide.png",
+      "medium": "ANIME",
+      "category": "development",
+      "body": "This article is original demonstration text. It shows headings, paragraphs, images and exact publication metadata. There are no real catalogue IDs, external publishers, advertisements or tracking scripts."
+    },
+    {
+      "id": "article-06",
+      "url": "news/demo-06/",
+      "title": "DEMO article 06",
+      "publishedAt": 1791936360000,
+      "excerpt": "An original sample article demonstrating a native news reader.",
+      "image": "images/video-06-wide.png",
+      "medium": "MANGA",
+      "category": "development",
+      "body": "This article is original demonstration text. It shows headings, paragraphs, images and exact publication metadata. There are no real catalogue IDs, external publishers, advertisements or tracking scripts."
+    }
+  ]
+}

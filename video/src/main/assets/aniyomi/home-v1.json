@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "homes": [
+    {
+      "id": "demo-animation",
+      "title": "DEMO Animation",
+      "source": {
+        "name": "DEMO Video",
+        "lang": "en"
+      },
+      "defaults": {
+        "Format": "Animation"
+      },
+      "browseFilters": [
+        "Genre",
+        "Format",
+        "Order",
+        "Published date"
+      ],
+      "sections": [
+        {
+          "id": "featured",
+          "title": "Demo highlights",
+          "layout": "featured",
+          "filters": {
+            "Order": "Popular"
+          }
+        },
+        {
+          "id": "latest",
+          "title": "Recently published demos",
+          "filters": {
+            "Order": "Latest"
+          }
+        },
+        {
+          "id": "by-date",
+          "title": "Published on a date",
+          "filters": {
+            "Order": "Latest"
+          },
+          "dateFilter": "Published date"
+        }
+      ],
+      "search": {
+        "id": "search",
+        "title": "Search demos",
+        "filters": {}
+      },
+      "categories": {
+        "filter": "Genre",
+        "exclude": [
+          "All"
+        ]
+      }
+    },
+    {
+      "id": "demo-cartoons",
+      "title": "DEMO Cartoons",
+      "source": {
+        "name": "DEMO Video",
+        "lang": "en"
+      },
+      "defaults": {
+        "Format": "Cartoons"
+      },
+      "browseFilters": [
+        "Genre",
+        "Format",
+        "Order",
+        "Published date"
+      ],
+      "sections": [
+        {
+          "id": "featured",
+          "title": "Demo highlights",
+          "layout": "featured",
+          "filters": {
+            "Order": "Popular"
+          }
+        },
+        {
+          "id": "latest",
+          "title": "Recently published demos",
+          "filters": {
+            "Order": "Latest"
+          }
+        },
+        {
+          "id": "by-date",
+          "title": "Published on a date",
+          "filters": {
+            "Order": "Latest"
+          },
+          "dateFilter": "Published date"
+        }
+      ],
+      "search": {
+        "id": "search",
+        "title": "Search demos",
+        "filters": {}
+      },
+      "categories": {
+        "filter": "Genre",
+        "exclude": [
+          "All"
+        ]
+      }
+    }
+  ]
+}

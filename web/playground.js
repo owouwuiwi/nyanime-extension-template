@@ -1,0 +1,116 @@
+(() => {
+  'use strict';
+  const root = document.documentElement;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const colour = matchMedia('(prefers-color-scheme: light)');
+  const themeButton = document.querySelector('.theme-button');
+  let stored;
+  try { stored = localStorage.getItem('nyanime-theme'); } catch { /* Optional storage. */ }
+  const theme = value => {
+    root.dataset.theme = value;
+    const label = value === 'light' ? 'Switch to dark theme' : 'Switch to light theme';
+    themeButton?.setAttribute('aria-label', label);
+    themeButton?.setAttribute('title', label);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', value === 'light' ? '#faf2ef' : '#130f16');
+  };
+  theme(stored === 'light' || stored === 'dark' ? stored : colour.matches ? 'light' : 'dark');
+  themeButton?.addEventListener('click', () => {
+    stored = root.dataset.theme === 'light' ? 'dark' : 'light';
+    theme(stored);
+    try { localStorage.setItem('nyanime-theme', stored); } catch { /* Optional storage. */ }
+  });
+  colour.addEventListener('change', () => { if (!stored) theme(colour.matches ? 'light' : 'dark'); });
+
+  const animations = new Set();
+  const reveal = (element, index = 0) => {
+    if (reduced.matches || document.hidden || !element.animate) return;
+    const animation = element.animate([{opacity: 0, translate: '0 12px'}, {opacity: 1, translate: '0 0'}],
+      {duration: 500, delay: Math.min(index * 40, 160), easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards'});
+    animations.add(animation);
+    const clear = () => animations.delete(animation);
+    animation.addEventListener('finish', clear, {once: true});
+    animation.addEventListener('cancel', clear, {once: true});
+  };
+  let observer;
+  if ('IntersectionObserver' in window && !reduced.matches) {
+    observer = new IntersectionObserver(entries => {
+      let index = 0;
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        observer.unobserve(entry.target);
+        if (entry.boundingClientRect.top >= 0 && !entry.target.contains(document.activeElement)) reveal(entry.target, index++);
+      }
+    }, {rootMargin: '0px 0px -12px 0px'});
+    document.querySelectorAll('[data-reveal]').forEach(element => observer.observe(element));
+  }
+  const settle = () => { animations.forEach(animation => animation.cancel()); animations.clear(); };
+  document.addEventListener('visibilitychange', () => { root.toggleAttribute('data-motion-paused', document.hidden); if (document.hidden) settle(); });
+  reduced.addEventListener('change', () => { if (reduced.matches) { observer?.disconnect(); settle(); } });
+  document.addEventListener('focusin', event => { animations.forEach(animation => { if (animation.effect?.target?.contains(event.target)) animation.cancel(); }); });
+
+  const filters = document.querySelector('.demo-filters');
+  if (filters) {
+    const buttons = [...filters.querySelectorAll('[data-filter]')];
+    const cards = [...document.querySelectorAll('.demo-card')];
+    const pill = filters.querySelector('.t-tabs-pill');
+    const count = document.querySelector('.demo-count');
+    const movePill = instant => {
+      const selected = buttons.find(button => button.getAttribute('aria-pressed') === 'true');
+      if (instant) pill.style.transition = 'none';
+      pill.style.width = `${selected.offsetWidth}px`;
+      pill.style.transform = `translateX(${selected.offsetLeft}px)`;
+      if (instant) { void pill.offsetWidth; pill.style.transition = ''; }
+    };
+    filters.dataset.enhanced = '';
+    movePill(true);
+    const choose = selected => {
+      if (selected.getAttribute('aria-pressed') === 'true') return;
+      buttons.forEach(button => button.setAttribute('aria-pressed', String(button === selected)));
+      movePill(false);
+      const apply = () => {
+        let visible = 0;
+        cards.forEach(card => { card.hidden = selected.dataset.filter !== 'all' && selected.dataset.filter !== card.dataset.kind; if (!card.hidden) visible++; });
+        count.textContent = `${visible} ${visible === 1 ? 'demo' : 'demos'} to explore`;
+      };
+      if (document.startViewTransition && !reduced.matches) { const transition = document.startViewTransition(apply); transition.ready.catch(() => {}); }
+      else apply();
+    };
+    buttons.forEach((button, index) => {
+      button.addEventListener('click', () => choose(button));
+      button.addEventListener('keydown', event => {
+        const delta = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+        if (!delta) return;
+        event.preventDefault();
+        const next = buttons[(index + delta + buttons.length) % buttons.length];
+        next.focus(); choose(next);
+      });
+    });
+    if ('ResizeObserver' in window) new ResizeObserver(() => movePill(true)).observe(filters);
+    document.fonts?.ready.then(() => movePill(true));
+  }
+
+  const video = document.querySelector('.cinema-frame video');
+  document.querySelectorAll('[data-quality]').forEach(button => button.addEventListener('click', () => {
+    if (!video || button.getAttribute('aria-pressed') === 'true') return;
+    const source = video.querySelector(`source[data-height="${button.dataset.quality}"]`);
+    if (!source) return;
+    const position = video.currentTime;
+    const playing = !video.paused;
+    document.querySelectorAll('[data-quality]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+    video.src = source.src;
+    video.addEventListener('loadedmetadata', () => { video.currentTime = Math.min(position, video.duration || position); if (playing) video.play().catch(() => {}); }, {once: true});
+    video.load();
+  }));
+
+  if (navigator.clipboard) document.querySelectorAll('.docs-article pre').forEach(pre => {
+    const code = pre.querySelector('code');
+    if (!code) return;
+    const button = document.createElement('button');
+    button.type = 'button'; button.className = 'copy-code'; button.textContent = 'Copy'; button.setAttribute('aria-label', 'Copy code snippet');
+    button.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(code.textContent); button.textContent = 'Copied'; setTimeout(() => { button.textContent = 'Copy'; }, 1400); }
+      catch { button.textContent = 'Select text'; }
+    });
+    pre.append(button);
+  });
+})();

@@ -1,0 +1,21 @@
+Nyanime extension starter
+Copyright (c) 2026 owouwuiwi and contributors.
+
+Original starter code is licensed under Apache-2.0 (LICENSE).
+Original generated demo media and sample text are dedicated under CC0-1.0;
+see website/ASSETS.md. No third-party series, scans or streams are included.
+
+Optional compile-only SDK exports originate from Nyanime, derived from
+AniYomi, Mihon and Tachiyomi. Their authors retain copyright, including:
+Copyright (c) 2015 Javier Tomas
+Copyright (c) 2024 Mihon Open Source Project
+Copyright (c) 2024 Aniyomi Open Source Project
+Copyright (c) 2026 owouwuiwi and Nyanime contributors.
+API sources and their existing file notices remain available in the linked
+Nyanime public source repository, pinned by sdk/sdk-lock.json.
+
+Shared Kotlin, coroutines, serialization, OkHttp, Jsoup, RxJava and Injekt
+dependencies are compile-only in extension artifacts; tests use them locally.
+Their licenses are not replaced by this notice. The Gradle wrapper retains
+its upstream Apache-2.0 license and notices. No native player is distributed
+inside these reference extensions.

@@ -1,0 +1,298 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#130f16">
+<meta name="description" content="The Nyanime extension playground. Original demo content, a five-step starter and the complete developer reference.">
+<meta name="robots" content="noindex"><link rel="icon" href="/example/brand/mark.svg" type="image/svg+xml">
+<script>try{const t=localStorage.getItem('nyanime-theme');document.documentElement.dataset.theme=t==='light'||t==='dark'?t:matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'}catch{}</script>
+<link rel="stylesheet" href="/example/brand/nyanime.css?v=2"><link rel="stylesheet" href="/example/style.css?v=2">
+<script src="/example/playground.js?v=2" defer></script><title>Technical reference · Nyanime</title></head><body>
+<a class="skip" href="#main">Skip to content</a><div class="site-shell">
+<header class="header glass"><a href="/" class="brand" aria-label="Nyanime home"><img class="logo dark-logo" src="/example/brand/logo-dark.svg" width="164" height="47" alt="Nyanime"><img class="logo light-logo" src="/example/brand/logo-light.svg" width="164" height="47" alt="Nyanime"></a><a class="playground-label" href="/example/">Playground <span>FOR CREATORS</span></a><nav aria-label="Playground navigation"><a class="desktop-nav" href="/example/#demos">Demos</a><a class="nav-download" href="/example/guide/">Start building <span aria-hidden="true">↗</span></a><button class="theme-button" aria-label="Switch to light theme"><svg class="theme-icon theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg><svg class="theme-icon theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.5 14.4A8.6 8.6 0 0 1 9.6 3.5a8.6 8.6 0 1 0 10.9 10.9Z"/></svg></button></nav></header>
+<main id="main" class="docs-layout"><article class="docs-article"><h1 id="nyanime-extension-reference">Nyanime extension reference</h1>
+<p>This reference accompanies the <a href="/example/guide/">quick start</a>. Examples target the
+exported SDK in <code>sdk/sdk-lock.json</code>. That file records the host revision, source
+hashes and API JAR hashes. It is not a promise that every old host supports every
+new optional capability. Consult the linked contracts before publishing.</p>
+<h2 id="architecture-and-ownership">Architecture and ownership</h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Owns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nyanime</td>
+<td>Navigation, Home rendering, search coordination, library, progress, cache, player, reader, Cast, rooms, backup and installation/trust UI</td>
+</tr>
+<tr>
+<td>Shared API</td>
+<td>Typed source models and public capability contracts</td>
+</tr>
+<tr>
+<td>Extension</td>
+<td>Website addresses, selectors, parsing, pagination, source IDs, stream resolution, programme matching and source-specific rules</td>
+</tr>
+<tr>
+<td>Demo website</td>
+<td>Public test fixtures and original media; replace it when adapting the source</td>
+</tr>
+</tbody>
+</table>
+<p>Extensions execute code in the host process after approval. <strong>RIN is a signed
+package format, not a security sandbox.</strong> Never request unrelated permissions,
+inspect host databases, depend on private host classes or run permanent services.
+Use public APIs and cancellation-aware network calls. Approval is explicit;
+installation must never silently trust a publisher.</p>
+<p>Shared APIs and libraries are <code>compileOnly</code>. Bundle your implementation only.
+<code>pack.py</code> inspects DEX class definitions and rejects accidentally bundled host,
+Kotlin, networking or parsing libraries. Keep the default implementation namespace
+while learning; if changing it, update the packer's allowed namespace too.</p>
+<p>The SDK export includes source-api, core-common, news-api, tv-api and addon-api.
+Each module uses only the contracts it needs. Keep SDK dependencies aligned with
+the target host; do not confuse an extension build library with the runtime API.</p>
+<h2 id="choosing-a-family">Choosing a family</h2>
+<table>
+<thead>
+<tr>
+<th>Family</th>
+<th>Entry point</th>
+<th>Public operations</th>
+<th>Current starter distribution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Video</td>
+<td><code>AnimeSourceFactory</code> → <code>AnimeHttpSource</code></td>
+<td>Popular/latest/search, details, episodes, seasons, hosters, videos</td>
+<td>RIN schema 1, <code>medium: anime</code>, API 17</td>
+</tr>
+<tr>
+<td>Manga</td>
+<td><code>SourceFactory</code> → <code>HttpSource</code></td>
+<td>Popular/latest/search, details, chapters, pages, image loading</td>
+<td>RIN schema 1, <code>medium: manga</code>, API 1.6</td>
+</tr>
+<tr>
+<td>News</td>
+<td><code>NewsSourceFactory.create(NewsHttpClient)</code></td>
+<td>Feed, optional search, complete article</td>
+<td>APK, News API 1</td>
+</tr>
+<tr>
+<td>TV</td>
+<td><code>TvSourceFactory.create(http, cache)</code></td>
+<td>Catalogue, channel lookup, guide, playback resolution</td>
+<td>RIN schema 2, <code>medium: tv</code>, API 1</td>
+</tr>
+</tbody>
+</table>
+<p>These are four working sources, not four mandatory dependencies. News RIN import
+is not implemented by the current host; do not label an APK as a <code>.rin</code>.
+Guide and addon extension families have separate contracts described below;
+they are not disguised video sources or required to implement this starter.</p>
+<h2 id="home-categories-sections-and-filters">Home categories, sections and filters</h2>
+<p>The signed asset <code>assets/aniyomi/home-v1.json</code> declares navigation. Its historical
+path is a compatibility contract: do not rename it for branding.</p>
+<pre><code class="language-json">{
+  &quot;version&quot;: 1,
+  &quot;homes&quot;: [{
+    &quot;id&quot;: &quot;cartoons&quot;,
+    &quot;title&quot;: &quot;Cartoons&quot;,
+    &quot;source&quot;: {&quot;name&quot;: &quot;Your source&quot;, &quot;lang&quot;: &quot;en&quot;},
+    &quot;defaults&quot;: {&quot;Format&quot;: &quot;Cartoons&quot;},
+    &quot;browseFilters&quot;: [&quot;Genre&quot;, &quot;Order&quot;, &quot;Published date&quot;],
+    &quot;sections&quot;: [
+      {&quot;id&quot;: &quot;featured&quot;, &quot;title&quot;: &quot;Highlights&quot;, &quot;layout&quot;: &quot;featured&quot;},
+      {&quot;id&quot;: &quot;latest&quot;, &quot;title&quot;: &quot;New releases&quot;, &quot;filters&quot;: {&quot;Order&quot;: &quot;Latest&quot;}},
+      {&quot;id&quot;: &quot;day&quot;, &quot;title&quot;: &quot;On this day&quot;, &quot;dateFilter&quot;: &quot;Published date&quot;}
+    ],
+    &quot;search&quot;: {&quot;id&quot;: &quot;search&quot;, &quot;title&quot;: &quot;Search cartoons&quot;, &quot;filters&quot;: {}},
+    &quot;categories&quot;: {&quot;filter&quot;: &quot;Genre&quot;, &quot;exclude&quot;: [&quot;All&quot;]}
+  }]
+}
+</code></pre>
+<p><code>source.name</code> and <code>source.lang</code> must identify exactly one source <strong>owned by that
+extension</strong>. Each Home category has a stable semantic ID; its label is presentation.
+There is no hardcoded list of permitted categories. Multiple <code>homes[]</code> entries
+produce multiple destinations, subject to the user's enabled languages, visibility,
+content settings and Home selection/order.</p>
+<p>Separate extensions can deliberately contribute to the same semantic Home ID.
+Video and reading Homes use separate navigation namespaces. Within one medium,
+their sections with matching IDs are merged; unique sections are added. Agree
+on semantics: <code>latest</code> must not mean popularity for one contributor. Titles alone
+are not reliable identity or deduplication keys. Every result retains its source.</p>
+<p>The starter uses <strong>demo-prefixed category IDs</strong> so installation does not take over
+an existing destination. Its <code>Format</code> filter keeps Animation and Cartoons separate.
+The app learns neither those format values nor any website rule.</p>
+<p>Filter keys and values match the extension's <strong>public filter labels</strong>. Each call
+to <code>getFilterList()</code> returns fresh objects. <code>defaults</code> apply throughout that Home;
+section <code>filters</code> refine them. <code>moreFilters</code> can refine the full-list route.
+<code>browseFilters</code> exposes supported select, checkbox group and text controls.
+<code>categories.filter</code> supplies genre chips: it does <strong>not</strong> declare Home categories.
+Unsupported filters must not silently become an unfiltered query.</p>
+<p><code>dateFilter</code> names a public Text filter receiving a civil <code>YYYY-MM-DD</code> date;
+an empty value means the source's default day. The source owns timezone conversion.
+Date/query/filter values remain attached to every page. <code>hasNext</code> must reflect
+the filtered result, not the unfiltered catalogue.</p>
+<p>Sections may declare <code>group: {id, title, tab}</code> to offer variants in one row.
+<code>primary: true</code> can opt a Home into the initial destination; this starter leaves
+it unset. Limits: version 1, 64 KiB, 8 Homes, 16 sections per Home, 100-character
+labels. Keep IDs unique within one declaration and unknown values optional.</p>
+<p>See the authoritative <a href="https://github.com/owouwuiwi/nyanime/blob/main/docs/extension-home-api.md">Home contract</a>
+and <a href="https://github.com/owouwuiwi/nyanime/blob/main/docs/manga-home-api.md">manga Home additions</a>.</p>
+<h2 id="covers-logos-and-rich-presentation">Covers, logos and rich presentation</h2>
+<p>Return <code>thumbnail_url</code> and, for video, <code>background_url</code> on normal source models.
+Keep stable public URLs when the image has not changed so host image caches work.
+An extension can extract the current horizontal logo from its website and return
+it in <code>SAnime.memo["aniyomi.home.v1"]</code>, or manga's optional <code>SMangaHomeMetadata</code>:</p>
+<pre><code class="language-json">{&quot;logoUrl&quot;:&quot;https://your.example/logo.png&quot;,&quot;logoName&quot;:&quot;Your source&quot;,
+ &quot;logoBackground&quot;:&quot;dark&quot;,&quot;badges&quot;:[&quot;SUB&quot;],&quot;details&quot;:[&quot;Public source information&quot;]}
+</code></pre>
+<p>The starter publishes a fixed original fixture logo. A real adapter owns dynamic
+extraction. The host decides layout and respects the source-logo preference.
+Never put cookies, signed private URLs or executable markup in presentation fields.
+An optional event <code>id</code> can distinguish multiple episode cards for one title without
+changing the title URL or creating duplicate library entries.</p>
+<h2 id="content-identity-progress-and-metadata">Content identity, progress and metadata</h2>
+<p>Source IDs are stable positive 64-bit values, independent of the local database.
+Use persistent title/chapter/episode references rather than temporary stream URLs.
+Do not put page numbers, selected quality or expiring tokens into a title identity.</p>
+<p>Return accurate episode/chapter numbers, publication timestamps in epoch
+<strong>milliseconds</strong>, state and available metadata. An unknown timestamp remains
+unknown/zero; never replace it with the fetch time. A batch discovered today is not
+a batch published today. Page list order is the source's published reading order;
+reader direction and double-page display belong to Nyanime.</p>
+<p>Verified external IDs can be supplied through <code>nyanime.tracking.v1</code> and optional
+manga <code>SMangaTrackingMetadata</code>. Include only IDs proven to match the same edition
+and season. Aliases are hints, not proof. The synthetic demo deliberately supplies
+no real catalogue IDs. See <a href="https://github.com/owouwuiwi/nyanime/blob/main/docs/extension-tracking-metadata.md">tracking metadata</a>.</p>
+<p>The optional manga <code>ReleaseScheduleProvider</code> contract can supply source-declared
+future chapter releases. Use their typed SDK models, real
+source dates and stated availability. Do not fabricate a schedule or require a
+tracker login for basic source playback. Host notifications, follow state,
+tracking, AniSkip and personal progress remain host responsibilities.</p>
+<h2 id="video-adapter">Video adapter</h2>
+<p><code>VideoSource.kt</code> implements the public suspend API. <code>getAnimeEpisodeUpdate</code> shares
+one extraction when details and episodes are requested together, and does no
+network work when both flags are false. Season discovery returns none because the
+demo publishes no season relations. A real adapter returns only verified relations.</p>
+<p>Episode → hoster → video are distinct steps. The demo parses <code>&lt;source&gt;</code> quality
+variants and <code>&lt;track&gt;</code> subtitles from its own HTML. Supply <code>Video.headers</code> and
+track headers only when required for that resource; do not leak credentials to
+another origin. Do not fetch or initialize the native player yourself. Source
+references let the host handle sharing, Cast and rooms through generic contracts.</p>
+<h2 id="manga-adapter">Manga adapter</h2>
+<p><code>MangaSource.kt</code> implements public suspend methods and coherent legacy HTTP/Rx
+hooks, including query, filters and page state. <code>getMangaUpdate</code> combines extraction.
+Page models hold final image URLs, so <code>imageUrlParse</code> is not needed for this site.
+If a site publishes intermediate image pages, implement that hook instead of
+guessing a final URL. The demo includes a five-page chapter to exercise odd totals.</p>
+<h2 id="news-adapter">News adapter</h2>
+<p>Use the host-supplied <code>NewsHttpClient</code>, cursor pagination and declared media/category
+capabilities. Return stable article IDs, publication dates, attribution and native
+<code>NewsBlock</code> content. Excerpts are not full text. Declare <code>fullText</code> only when returning
+the article body. Verified topic identities belong to the extension; do not attach
+an unrelated title merely because two strings look similar. Preserve cancelled
+requests and surface partial failures without substituting another article.</p>
+<h2 id="tv-adapter">TV adapter</h2>
+<p>Channels and feeds use opaque <code>TvChannelRef</code> values. Return alternative streams of
+the same feed together; keep regional/time-shifted feeds distinguishable. Declare
+guide, channel lookup, rewind, speed and time-reference capabilities honestly.
+Programme times use the TV API's UTC model. Missing guide is distinct from an
+empty programme interval, stale data or a failed request.</p>
+<p>The demo declares no guide, no rewind and no shared live clock. Its finite original
+test signal exercises loading without pretending to be a broadcaster. Do not create
+fake anime episodes to enter the player. The host owns live controls, PiP, Cast,
+room negotiation and local buffering. See <a href="https://github.com/owouwuiwi/nyanime/tree/main/tv-api">TV API</a>.</p>
+<h2 id="addons-guides-and-settings">Addons, guides and settings</h2>
+<p>These optional families are not bundled into the four source examples:</p>
+<ul>
+<li><strong>RIN addons:</strong> schema 2, <code>medium: addon</code>, <code>RinAddon</code> from <code>addon-api</code>.
+  The host supplies <code>RinAddonHost</code> and <code>RinAddonContext</code>; use only declared
+  UI/task capabilities. Release views and work on cancellation. An APK addon is
+  a separate intent/PendingIntent protocol; it is not interchangeable with RIN.</li>
+<li><strong>Episode guides:</strong> schema 2, <code>medium: guide</code>, <code>RinEpisodeGuideProvider</code>.
+  Search receives public work identity; guide references resolve episode
+  classifications. Unknown classifications remain unknown; no private progress
+  or stream credentials are required. See <a href="https://github.com/owouwuiwi/nyanime/blob/main/docs/episode-guides.md">guide contract</a>.</li>
+<li><strong>Source preferences:</strong> use <code>ConfigurableAnimeSource</code> / <code>ConfigurableSource</code>
+  when the adapter actually needs settings. Store only source-owned values;
+  avoid requesting credentials for publicly available fixtures.</li>
+</ul>
+<p>For optional interfaces not exercised by the demo, inspect the exported matching
+API sources before implementing. Declaring a capability without implementing it
+does not make it supported.</p>
+<h2 id="network-cache-and-failure-handling">Network, cache and failure handling</h2>
+<p>The demo restricts URLs to its own HTTPS <code>/example/</code> area and rejects path escapes.
+That is this adapter's policy, not a hardcoded Nyanime limitation. Adapters needing
+additional media hosts should allow only explicit verified origins.</p>
+<p>Video/manga share the host client, a bounded timeout, cancellable calls and a
+1 MiB response limit. A per-source Mutex coalesces concurrent catalogue fetches
+for 60 seconds. Failed responses are not cached. No app-wide client, crawler,
+background refresh loop or eager video scan is created. News/TV use supplied HTTP
+contracts. Rethrow cancellation; do not hide errors behind endless retries.</p>
+<p>Handle no results, removed items, changed markup, missing images, unavailable
+streams, malformed dates and offline errors explicitly. Never log tokens/cookies,
+put credentials in shared links, or replace missing data with plausible guesses.</p>
+<h2 id="signing-and-updates">Signing and updates</h2>
+<p>RIN contains <code>classes.dex</code>, optional secondary DEX, <code>assets/</code>, <code>manifest.json</code>,
+<code>META-INF/rin.cert</code> and <code>META-INF/rin.sig</code>. The signature covers the <strong>exact manifest
+bytes</strong>; its hash map covers every payload file. Use RSA-SHA256 or ECDSA-SHA256 and
+an X.509 DER certificate. The starter creates a local development RSA identity.</p>
+<pre><code class="language-sh">python tools/pack.py video --key /private/publisher.pem --certificate /private/publisher.der
+python tools/verify_rin.py dist/placeholder-video-1.0.0.rin
+</code></pre>
+<p>Keep the private key out of source, CI logs and website downloads. Reusing another
+publisher's package/source IDs or replacing a lost key is not a valid update.
+The host checks integrity, supported API, package, source IDs, signer and increasing
+versions before activation. Same-version changed bytes and downgrades are refused.
+Local import displays the certificate fingerprint for explicit approval; a valid
+signature alone is not a claim of publisher reputation.</p>
+<p>Current RIN limits include 32 MiB, 512 ZIP entries and 64 KiB manifest. News APKs
+use normal Android APK signing; development debug signatures must be replaced for
+public distribution. Build <code>:news:assembleRelease</code>, then run:</p>
+<pre><code class="language-sh">python tools/sign_apk.py --build-tools /path/to/android-sdk/build-tools/35.0.1 --key /private/publisher.pem --certificate /private/publisher.der
+</code></pre>
+<p>This rejects debuggable APKs, checks implementation classes, aligns the archive
+and verifies the resulting signature. <code>--development</code> reuses the local demo identity. Native extension API namespace strings are compatibility
+identifiers and are retained even when a product uses its own branding.</p>
+<p>The optional <code>assets/nyanime/extension-v1.json</code> declares distribution identity and
+manual/repository update policy. This starter uses manual updates and has no
+embedded catalogue. A separately maintained public catalogue is optional; never
+bundle its addresses or private signing material into the host.</p>
+<h2 id="build-tests-and-reproducibility">Build, tests and reproducibility</h2>
+<p>Run the Python tool tests and <code>:common:test</code> before packaging. Parser tests operate
+on the original website fixtures and cover pagination, filters, scoped Home data,
+identity, page order, URL boundaries, shared requests and failure recovery.
+Python tests cover configuration, signatures and tampering. Packaging verifies
+payload hashes and emits a public fingerprint/SHA-256 report beside the RIN.</p>
+<p><code>tools/generate_site.py --ffmpeg /path/to/ffmpeg</code> regenerates original images,
+HTML/JSON, VTT subtitles and synthetic videos. It needs Pillow and FFmpeg only for
+fixture regeneration, not extension compilation or normal use. Existing videos
+are reused. <code>website/assets-manifest.json</code> records published fixture hashes.</p>
+<p>Use <a href="/example/checklist/">CHECKLIST.md</a> for physical-device verification. Compilation and
+signature checks do not prove the Home, reader, player or APK trust UI works on
+a real phone. Record tested host version and device separately from build results.</p></article><aside class="doc-sidebar" aria-label="Documentation navigation"><p>DEVELOPER HANDBOOK</p><a href="/example/guide/">01 · Quick start</a><a href="/example/reference/">02 · Technical reference</a><a href="/example/checklist/">03 · Release checklist</a><details class="doc-toc"><summary>On this page</summary><div class="toc">
+<ul>
+<li><a href="#nyanime-extension-reference">Nyanime extension reference</a><ul>
+<li><a href="#architecture-and-ownership">Architecture and ownership</a></li>
+<li><a href="#choosing-a-family">Choosing a family</a></li>
+<li><a href="#home-categories-sections-and-filters">Home categories, sections and filters</a></li>
+<li><a href="#covers-logos-and-rich-presentation">Covers, logos and rich presentation</a></li>
+<li><a href="#content-identity-progress-and-metadata">Content identity, progress and metadata</a></li>
+<li><a href="#video-adapter">Video adapter</a></li>
+<li><a href="#manga-adapter">Manga adapter</a></li>
+<li><a href="#news-adapter">News adapter</a></li>
+<li><a href="#tv-adapter">TV adapter</a></li>
+<li><a href="#addons-guides-and-settings">Addons, guides and settings</a></li>
+<li><a href="#network-cache-and-failure-handling">Network, cache and failure handling</a></li>
+<li><a href="#signing-and-updates">Signing and updates</a></li>
+<li><a href="#build-tests-and-reproducibility">Build, tests and reproducibility</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</details></aside></main>
+<footer class="footer playground-footer"><div class="footer-main"><a href="/example/" class="footer-wordmark">Made to be <span class="accent-text">made yours.</span></a><nav aria-label="Developer links"><a href="/example/guide/">Quick start</a><a href="/example/reference/">Technical reference</a><a href="/example/checklist/">Release checklist</a><a href="/example/ASSETS.md">Media credits</a></nav></div><p class="copyright-position"><strong>Nyanime does not promote piracy in any way or form.</strong><br>Bring your own content. Respect creators and copyright. <a href="https://owouwuiwi.github.io/responsible-use/">Our position ↗</a></p><p>© 2026 owouwuiwi &amp; Nyanime contributors. Original demo media: CC0-1.0.<br>Extension code: Apache-2.0. Font licences are included with the starter.</p></footer></div></body></html>

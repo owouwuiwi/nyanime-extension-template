@@ -1,0 +1,33 @@
+name: Verify starter
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Install tool dependencies
+        run: |
+          python -m pip install -r requirements-tools.txt
+          sdkmanager 'platforms;android-36' 'build-tools;35.0.1'
+      - name: Verify tools and original fixtures
+        run: python -m unittest discover -s tests -v
+      - name: Test parsers and compile all examples
+        run: ./gradlew :common:test :video:assembleDebug :manga:assembleDebug :news:assembleDebug :news:assembleRelease :tv:assembleDebug --max-workers=2
+      - name: Verify extension-only DEX and RIN signatures
+        run: |
+          python tools/pack.py video --development
+          python tools/pack.py manga --development
+          python tools/pack.py tv --development
+      # Deliberately no artifact upload: CI-generated publisher keys are ephemeral
+      # and are never used to publish an extension or a trusted update.

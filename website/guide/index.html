@@ -1,0 +1,122 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#130f16">
+<meta name="description" content="The Nyanime extension playground. Original demo content, a five-step starter and the complete developer reference.">
+<meta name="robots" content="noindex"><link rel="icon" href="/example/brand/mark.svg" type="image/svg+xml">
+<script>try{const t=localStorage.getItem('nyanime-theme');document.documentElement.dataset.theme=t==='light'||t==='dark'?t:matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'}catch{}</script>
+<link rel="stylesheet" href="/example/brand/nyanime.css?v=2"><link rel="stylesheet" href="/example/style.css?v=2">
+<script src="/example/playground.js?v=2" defer></script><title>Quick start · Nyanime</title></head><body>
+<a class="skip" href="#main">Skip to content</a><div class="site-shell">
+<header class="header glass"><a href="/" class="brand" aria-label="Nyanime home"><img class="logo dark-logo" src="/example/brand/logo-dark.svg" width="164" height="47" alt="Nyanime"><img class="logo light-logo" src="/example/brand/logo-light.svg" width="164" height="47" alt="Nyanime"></a><a class="playground-label" href="/example/">Playground <span>FOR CREATORS</span></a><nav aria-label="Playground navigation"><a class="desktop-nav" href="/example/#demos">Demos</a><a class="nav-download" href="/example/guide/">Start building <span aria-hidden="true">↗</span></a><button class="theme-button" aria-label="Switch to light theme"><svg class="theme-icon theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg><svg class="theme-icon theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.5 14.4A8.6 8.6 0 0 1 9.6 3.5a8.6 8.6 0 1 0 10.9 10.9Z"/></svg></button></nav></header>
+<main id="main" class="docs-layout"><article class="docs-article"><h1 id="build-your-first-nyanime-extension">Build your first Nyanime extension</h1>
+<p>A working starter, with an original demo website and four independent examples.
+<strong>Start here.</strong> Use the <a href="/example/reference/">technical reference</a> when adapting it.</p>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Demonstrates</th>
+<th>Installable output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Video</td>
+<td>Two Home categories, search, genres, dates, episodes, qualities, subtitles</td>
+<td><code>.rin</code></td>
+</tr>
+<tr>
+<td>Manga</td>
+<td>Home, filters, chapters, original page order, odd-length chapters</td>
+<td><code>.rin</code></td>
+</tr>
+<tr>
+<td>News</td>
+<td>Feed, search, pagination, native article blocks</td>
+<td><code>.apk</code></td>
+</tr>
+<tr>
+<td>TV</td>
+<td>Channels, lookup, playback, explicit missing-guide state</td>
+<td><code>.rin</code></td>
+</tr>
+</tbody>
+</table>
+<p>Everything is extracted from <a href="https://owouwuiwi.github.io/example/">our demo website</a>.
+Videos are intentionally black, with a silent audio track. Manga pages are original
+geometric drawings. The TV signal is a <strong>finite test file</strong>, not a real broadcast.</p>
+<p><strong>Nyanime does not promote piracy in any way or form.</strong> We follow a
+<strong>bring-your-own-content</strong> model. This separate starter uses only original demo
+material; use content you are legally entitled to access and respect copyright.
+<a href="https://owouwuiwi.github.io/responsible-use/">Responsible use</a>.</p>
+<h2 id="1-get-ready">1. Get ready</h2>
+<p>Install <strong>JDK 17</strong>, <strong>Android SDK 36 / Build Tools 35.0.1</strong>, and <strong>Python 3.10+</strong>.
+Set <code>JAVA_HOME</code> and <code>ANDROID_HOME</code>, or put <code>sdk.dir=/your/android/sdk</code> in
+<code>local.properties</code>. On Windows, use <code>gradlew.bat</code> instead of <code>./gradlew</code>.</p>
+<p>The matching compile-only SDK, reference API sources and Gradle wrapper are
+included. To refresh the SDK from a matching Nyanime checkout:</p>
+<pre><code class="language-sh">python tools/prepare_sdk.py --host /path/to/nyanime --build
+</code></pre>
+<p>Install the small packaging/test dependency once:</p>
+<pre><code class="language-sh">python -m pip install -r requirements-tools.txt
+</code></pre>
+<h2 id="2-configure">2. Configure</h2>
+<p>The unchanged demo works as-is. For your own extension, edit <code>template.json</code>:
+choose a unique package, a stable positive source ID, name, language and website.
+Then generate matching Android metadata and Home declarations:</p>
+<pre><code class="language-sh">python tools/configure.py
+</code></pre>
+<p>Keep package, source IDs and signing key unchanged when updating an extension.
+Increase <code>versionCode</code> for every published change. Do not ship the demo's IDs as
+your own product. The source implementation lives in each module's <code>*Source.kt</code>;
+the website parser lives in <code>common/</code>. Nyanime needs no site-specific changes.</p>
+<h2 id="3-build-and-test">3. Build and test</h2>
+<pre><code class="language-sh">python -m unittest discover -s tests -v
+./gradlew :common:test :video:assembleDebug :manga:assembleDebug :news:assembleDebug :tv:assembleDebug
+</code></pre>
+<p>Choose one module when you only need one example. Android APKs are build
+containers for the RIN examples; the news example currently uses APK installation.</p>
+<h2 id="4-make-your-rin">4. Make your RIN</h2>
+<pre><code class="language-sh">python tools/pack.py video --development
+python tools/pack.py manga --development
+python tools/pack.py tv --development
+</code></pre>
+<p>Files appear in <code>dist/</code>. Your development identity is created once in <code>.local/</code>;
+<strong>back it up privately and never commit it</strong>. For publishing, use your own key
+and DER certificate with <code>--key</code> and <code>--certificate</code>. See <a href="/example/reference/#signing-and-updates">signing</a>.</p>
+<h2 id="5-open-in-nyanime">5. Open in Nyanime</h2>
+<p>Use a host supporting standalone local RIN import (version code <strong>232+</strong>).
+Open <strong>Store → Load RIN</strong>, choose the file, review its publisher,
+and explicitly approve it. Enable <strong>English</strong> sources if they are hidden.</p>
+<p>The video extension declares <strong>DEMO Animation</strong> and <strong>DEMO Cartoons</strong>. Both can
+appear among the selectable Home categories; the manga extension adds <strong>DEMO Manga</strong>.
+Enable/reorder them in Home settings as needed. They disappear when the last
+enabled contributing extension is removed. A catalogue is not required for local import.</p>
+<p>For local news development, install <code>news/build/outputs/apk/debug/news-debug.apk</code>,
+approve the source and select it in News. For distribution, build <code>:news:assembleRelease</code>
+and use <code>tools/sign_apk.py</code> with an owned publisher key; see the technical reference. Never install both an APK and a RIN copy of the same source.</p>
+<h2 id="make-it-yours">Make it yours</h2>
+<p>An extension can declare <strong>multiple Home categories</strong>. For example, a cartoons
+provider declares <code>homes[].id = "cartoons"</code>, its label, sections and supported
+filters. Nyanime reads that contract: it never guesses a category from a source's
+name. <strong>Home categories are navigation destinations; genres are filters inside them.</strong></p>
+<p>Read <a href="/example/reference/">the complete reference</a>, then use the
+<a href="/example/checklist/">release checklist</a>. Regenerating with <code>configure.py</code> overwrites
+the generated manifests and Home JSON: change the generator when keeping custom declarations.</p>
+<p>Code: Apache-2.0, with inherited API notices retained. Generated demo media:
+CC0-1.0; see <a href="/example/ASSETS.md">ASSETS.md</a>. No third-party series, scans or streams
+are included. The app stays generic; this optional extension owns every demo URL,
+selector and parsing rule.</p></article><aside class="doc-sidebar" aria-label="Documentation navigation"><p>DEVELOPER HANDBOOK</p><a href="/example/guide/">01 · Quick start</a><a href="/example/reference/">02 · Technical reference</a><a href="/example/checklist/">03 · Release checklist</a><details class="doc-toc"><summary>On this page</summary><div class="toc">
+<ul>
+<li><a href="#build-your-first-nyanime-extension">Build your first Nyanime extension</a><ul>
+<li><a href="#1-get-ready">1. Get ready</a></li>
+<li><a href="#2-configure">2. Configure</a></li>
+<li><a href="#3-build-and-test">3. Build and test</a></li>
+<li><a href="#4-make-your-rin">4. Make your RIN</a></li>
+<li><a href="#5-open-in-nyanime">5. Open in Nyanime</a></li>
+<li><a href="#make-it-yours">Make it yours</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</details></aside></main>
+<footer class="footer playground-footer"><div class="footer-main"><a href="/example/" class="footer-wordmark">Made to be <span class="accent-text">made yours.</span></a><nav aria-label="Developer links"><a href="/example/guide/">Quick start</a><a href="/example/reference/">Technical reference</a><a href="/example/checklist/">Release checklist</a><a href="/example/ASSETS.md">Media credits</a></nav></div><p class="copyright-position"><strong>Nyanime does not promote piracy in any way or form.</strong><br>Bring your own content. Respect creators and copyright. <a href="https://owouwuiwi.github.io/responsible-use/">Our position ↗</a></p><p>© 2026 owouwuiwi &amp; Nyanime contributors. Original demo media: CC0-1.0.<br>Extension code: Apache-2.0. Font licences are included with the starter.</p></footer></div></body></html>

@@ -1,0 +1,3 @@
+# Only needed to regenerate the optional original demo website.
+Pillow>=11,<13
+Markdown>=3.7,<4

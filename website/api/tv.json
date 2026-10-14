@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "channels": [
+    {
+      "id": "test-signal",
+      "name": "DEMO \u2014 synthetic test signal",
+      "logo": "images/icon.png",
+      "stream": "media/tv-test.mp4",
+      "description": "A finite two-hour synthetic file, not a real live broadcast. No UTC synchronization or DVR is claimed."
+    }
+  ]
+}
