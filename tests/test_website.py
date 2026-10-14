@@ -1,4 +1,5 @@
 import json
+import hashlib
 import unittest
 from html.parser import HTMLParser
 from pathlib import Path
@@ -12,15 +13,43 @@ class Links(HTMLParser):
     def __init__(self):
         super().__init__()
         self.links = []
+        self.ids = set()
 
     def handle_starttag(self, tag, attrs):
         values = dict(attrs)
+        if values.get('id'):
+            self.ids.add(values['id'])
         for name in ['href', 'src']:
             if values.get(name):
                 self.links.append(values[name])
 
 
 class WebsiteTest(unittest.TestCase):
+    def test_documentation_has_one_guide_and_working_section_links(self):
+        guide = (SITE / 'guide/index.html').read_text(encoding='utf-8')
+        self.assertIn('Build a Nyanime extension', guide)
+        source_hash = hashlib.sha256((ROOT / 'docs/GUIDE.md').read_text(encoding='utf-8').encode('utf-8')).hexdigest()
+        self.assertIn('data-source-sha256="' + source_hash + '"', guide)
+        for name in ['reference', 'checklist']:
+            old = (SITE / name / 'index.html').read_text(encoding='utf-8')
+            self.assertIn('location.replace(', old)
+            self.assertIn('/example/guide/', old)
+            self.assertNotIn('class="docs-article"', old)
+        for name in ['index.html', 'guide/index.html', 'reference/index.html', 'checklist/index.html']:
+            parser = Links()
+            parser.feed((SITE / name).read_text(encoding='utf-8'))
+            base = 'https://fixture.invalid/example/' + name
+            for link in parser.links:
+                target = urlparse(urljoin(base, link))
+                if target.hostname != 'fixture.invalid' or not target.fragment:
+                    continue
+                path = SITE / unquote(target.path.removeprefix('/example/'))
+                if path.is_dir():
+                    path /= 'index.html'
+                destination = Links()
+                destination.feed(path.read_text(encoding='utf-8'))
+                self.assertIn(unquote(target.fragment), destination.ids, (name, link))
+
     def test_internal_html_links_resolve_without_leaving_example(self):
         seen = 0
         for page in SITE.rglob('*.html'):
