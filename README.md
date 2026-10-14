@@ -90,6 +90,13 @@ For local news development, install `news/build/outputs/apk/debug/news-debug.apk
 approve the source and select it in News. For distribution, build `:news:assembleRelease`
 and use `tools/sign_apk.py` with an owned publisher key; see the technical reference. Never install both an APK and a RIN copy of the same source.
 
+Prebuilt demos: [Video RIN](https://owouwuiwi.github.io/example/downloads/placeholder-video-1.0.0.rin) ·
+[Manga RIN](https://owouwuiwi.github.io/example/downloads/placeholder-manga-1.0.0.rin) ·
+[News APK](https://owouwuiwi.github.io/example/downloads/placeholder-news-1.0.0.apk) ·
+[TV RIN](https://owouwuiwi.github.io/example/downloads/placeholder-tv-1.0.0.rin).
+[Publisher fingerprint and checksums](https://owouwuiwi.github.io/example/downloads/demos.json).
+These optional demos are separate from the application and use an owned demo signing identity.
+
 ## Make it yours
 
 An extension can declare **multiple Home categories**. For example, a cartoons
