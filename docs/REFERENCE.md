@@ -124,6 +124,10 @@ changing the title URL or creating duplicate library entries.
 
 ## Content identity, progress and metadata
 
+For HttpSource adapters, `baseUrl` is the website origin while stored references
+include the website directory. The starter verifies that host WebView links can
+recompose them without duplicating `/example/`.
+
 Source IDs are stable positive 64-bit values, independent of the local database.
 Use persistent title/chapter/episode references rather than temporary stream URLs.
 Do not put page numbers, selected quality or expiring tokens into a title identity.

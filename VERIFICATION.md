@@ -3,7 +3,7 @@
 Host SDK: Nyanime 0.43.0.3, API modules freshly built before export.
 
 - All four Android example modules compile successfully.
-- 10 JVM tests pass: parser, scoped Home data, pagination, ordering, original page order, URL boundaries, shared cache, failures and cancellation.
+- 11 JVM tests pass: parser, scoped Home data, pagination, ordering, original page order, URL boundaries, shared cache, failures and cancellation.
 - 16 Python tests pass: configuration, signing, altered payloads, DEX guard, website links and original-media checksums.
 - Three source RINs are signed and verified without executing code.
 - DEX inspection finds only starter implementation classes and the exact D8-generated LambdaMethod annotation; no bundled host or shared runtime classes.

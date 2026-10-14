@@ -28,6 +28,8 @@ class SiteAddress(
         require(root.path.endsWith('/')) { "Website base URL must end with /" }
     }
 
+    val origin: String get() = "${root.scheme}://${root.rawAuthority}"
+
     fun url(reference: String): String {
         require(reference.isNotBlank() && reference.length <= 2048 && '\\' !in reference)
         require(!Regex("(?i)%(?:2e|2f|5c)").containsMatchIn(reference)) { "Encoded path traversal rejected" }

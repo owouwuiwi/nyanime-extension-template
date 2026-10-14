@@ -34,7 +34,8 @@ class MangaSource : HttpSource() {
     override val id = BuildConfig.SOURCE_ID
     override val name = BuildConfig.SOURCE_NAME
     override val lang = BuildConfig.LANGUAGE
-    override val baseUrl = BuildConfig.BASE_URL.removeSuffix("/")
+    private val address = SiteAddress(BuildConfig.BASE_URL)
+    override val baseUrl = address.origin
     override val supportsLatest = true
     override val client by lazy {
         network.client
@@ -44,7 +45,6 @@ class MangaSource : HttpSource() {
             .callTimeout(15, TimeUnit.SECONDS)
             .build()
     }
-    private val address = SiteAddress(BuildConfig.BASE_URL)
     private val site by lazy { SiteRepository(address, { readText(client, it, headers) }) }
 
     private class Genre : Filter.Select<String>("Genre", arrayOf("All", "Adventure", "Slice of life", "Fantasy"))

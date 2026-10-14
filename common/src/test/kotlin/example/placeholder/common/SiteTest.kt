@@ -34,6 +34,12 @@ class SiteTest {
         }
     }
 
+    @Test fun hostWebLinksRecomposeWithoutDuplicatingTheWebsiteDirectory() {
+        val reference = address.reference("video/demo-01/")
+        assertEquals("https://fixture.invalid", address.origin)
+        assertEquals(address.url(reference), address.origin + reference)
+    }
+
     @Test fun categoriesScopeTheirOwnData() {
         val all = catalogue()
         val animation = SiteParser.page(all, "anime", 1, Query(format = "Animation"), 50)

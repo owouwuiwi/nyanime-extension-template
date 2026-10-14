@@ -156,6 +156,9 @@ Never put cookies, signed private URLs or executable markup in presentation fiel
 An optional event <code>id</code> can distinguish multiple episode cards for one title without
 changing the title URL or creating duplicate library entries.</p>
 <h2 id="content-identity-progress-and-metadata">Content identity, progress and metadata</h2>
+<p>For HttpSource adapters, <code>baseUrl</code> is the website origin while stored references
+include the website directory. The starter verifies that host WebView links can
+recompose them without duplicating <code>/example/</code>.</p>
 <p>Source IDs are stable positive 64-bit values, independent of the local database.
 Use persistent title/chapter/episode references rather than temporary stream URLs.
 Do not put page numbers, selected quality or expiring tokens into a title identity.</p>
