@@ -1,6 +1,12 @@
 # Changelog
 
-## Unreleased
+## 1.0.1
+
+- Produce publisher-signed APKs for Android installation or private import; preserve read-only legacy verification.
+- Add guide and hosted-addon examples, declared package capabilities and all-six-family CI builds.
+- Pin independent upstream video/manga ABI profiles, check compiled references and reject bundled shared classes.
+- Document explicit trust, origin association, optional capabilities and the conditional host compatibility matrix.
+- Retain SDK attribution, source hashes and the complete English guide.
 
 - One complete English developer guide replaces the split quick start and technical reference.
 - Explain source methods and models, website mapping, Home declarations and factory discovery with linked code examples.

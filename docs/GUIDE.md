@@ -35,18 +35,20 @@ User opens Home, searches, plays or reads
 | Extension | Website addresses, selectors, parsing, pagination, source IDs, stream resolution, programme matching and source-specific rules |
 | Demo website | Public test fixtures and original media; replace it when adapting the source |
 
-Extensions execute code in the host process after approval. **RIN is a signed
+Extensions execute code in the host process after approval. **An APK extension is a signed
 package format, not a security sandbox.** Never request unrelated permissions,
 inspect host databases, depend on private host classes or run permanent services.
 Use public APIs and cancellation-aware network calls. Approval is explicit;
 installation must never silently trust a publisher.
 
 Shared APIs and libraries are `compileOnly`. Bundle your implementation only.
-`pack.py` inspects DEX class definitions and rejects accidentally bundled host,
+`sign_apk.py` inspects DEX class definitions and rejects accidentally bundled host,
 Kotlin, networking or parsing libraries. Keep the default implementation namespace
 while learning; if changing it, update the packer's allowed namespace too.
 
-The SDK export includes source-api, core-common, news-api, tv-api and addon-api.
+The host SDK export includes source-api, core-common, news-api, tv-api and addon-api.
+Base video/manga modules compile against separately pinned upstream profiles;
+see [Interoperability](INTEROPERABILITY.md) and [profile lock](../sdk/portable-sdk-lock.json).
 Each module uses only the contracts it needs. Keep SDK dependencies aligned with
 the target host; do not confuse an extension build library with the runtime API.
 
@@ -54,15 +56,17 @@ the target host; do not confuse an extension build library with the runtime API.
 
 | Family | Entry point | Public operations | Current starter distribution |
 | --- | --- | --- | --- |
-| Video | `AnimeSourceFactory` → `AnimeHttpSource` | Popular/latest/search, details, episodes, seasons, hosters, videos | RIN schema 1, `medium: anime`, API 17 |
-| Manga | `SourceFactory` → `HttpSource` | Popular/latest/search, details, chapters, pages, image loading | RIN schema 1, `medium: manga`, API 1.6 |
+| Video | `AnimeSourceFactory` → `AnimeHttpSource` | Popular/latest/search, details, episodes, seasons, hosters, videos | Signed APK, anime API 17 |
+| Manga | `SourceFactory` → `HttpSource` | Popular/latest/search, details, chapters, pages, image loading | Signed APK, common manga API 1.4 |
 | News | `NewsSourceFactory.create(NewsHttpClient)` | Feed, optional search, complete article | APK, News API 1 |
-| TV | `TvSourceFactory.create(http, cache)` | Catalogue, channel lookup, guide, playback resolution | RIN schema 2, `medium: tv`, API 1 |
+| TV | `TvSourceFactory.create(http, cache)` | Catalogue, channel lookup, guide, playback resolution | Signed APK, TV API 1 |
+| Guide | `EpisodeGuideProvider` | Work search, episode classification | Signed APK, guide API 1 |
+| Addon | `HostedAddon` | Component-free UI and declared tasks | Signed APK, hosted addon API 1 |
 
-These are four working sources, not four mandatory dependencies. News RIN import
-is not implemented by the current host; do not label an APK as a `.rin`.
-Guide and addon extension families have separate contracts described below;
-they are not disguised video sources or required to implement this starter.
+These are independent source families, not mandatory dependencies. The guide
+and addon modules demonstrate separate, component-free contracts: they do not
+pretend to be video sources. Every new output is a signed APK. Legacy `.rin`
+files remain a compatibility format; do not rename an APK to `.rin`.
 
 Read the working implementations alongside this guide:
 [video](../video/src/main/kotlin/example/placeholder/video/VideoSource.kt),
@@ -90,12 +94,12 @@ On Windows, replace `./gradlew` with `./gradlew.bat` in every command below.
 ```sh
 python -m pip install -r requirements-tools.txt
 python -m unittest discover -s tests -v
-./gradlew :common:test :video:assembleDebug
+./gradlew :common:test :video:assembleRelease
 ```
 
-This tests the parser and creates `video/build/outputs/apk/debug/video-debug.apk`.
-For video/manga/TV, the APK is a **build container**: package it as RIN before
-installation. News is distributed as an APK. Keep the public demo URL unchanged
+This tests the parser and creates `video/build/outputs/apk/release/video-release-unsigned.apk`.
+Sign it before installation. For every family, the signed release APK is the
+distributable artifact. Keep the public demo URL unchanged
 for the first build; another website requires another parser.
 
 The matching compile-only SDK and Gradle wrapper are included. Only when targeting
@@ -118,9 +122,9 @@ Edit [template.json](../template.json), then run `python tools/configure.py`.
 | `modules.video.name` | Display name; Home's owned source selector must match it and its language |
 | `versionCode` | Positive integer increased for each published change |
 | `versionName` | Human-readable version, separate from the host compatibility floor |
-| `minimumHostVersionCode` | Compatible host floor; at least `232` for this starter's local import path |
+| `minimumHostVersionCode` | Compatible host floor; at least `237` for this starter's interoperable APK import path |
 
-The same module fields exist for manga, news and TV. Keep all four declarations
+The same module fields exist for manga, news, TV, guide and addon. Keep all six declarations
 even when building one module. Never distribute your own product with demo IDs.
 
 `configure.py` generates Android manifests, icons, distribution metadata and
@@ -129,12 +133,11 @@ Home declarations, change its `home()` generator, not only the generated JSON.
 
 The configured package identity is separate from the Kotlin namespace
 `example.placeholder.*`, which you can keep while learning. If renaming Kotlin
-packages, also update factory names in `configure.py` and `pack.py`, Gradle
+packages, also update factory names in `configure.py` and the APK signing helper, Gradle
 namespaces and the packer's DEX allowlist. The configuration does not rename code.
 
-The host discovers factories through metadata: RIN's `manifest.json.entryPoints`
-for video/manga/TV, and Android manifest `nyanime.news.factory` /
-`nyanime.news.api` for News APKs. `configure.py` and `pack.py` register these for
+The host discovers factories through metadata: Android class/factory metadata and the optional signed package declaration.
+`configure.py` registers these for
 you. Historical metadata/API namespaces are compatibility contracts: do not
 rename them for branding.
 
@@ -219,8 +222,8 @@ Sections may declare `group: {id, title, tab}` to offer variants in one row.
 it unset. Limits: version 1, 64 KiB, 8 Homes, 16 sections per Home, 100-character
 labels. Keep IDs unique within one declaration and unknown values optional.
 
-See the authoritative [Home contract](https://github.com/owouwuiwi/nyanime/blob/main/docs/extension-home-api.md)
-and [manga Home additions](https://github.com/owouwuiwi/nyanime/blob/main/docs/manga-home-api.md).
+See the authoritative [Home contract](https://github.com/owouwuiwi/nyanime-source/blob/main/docs/extension-home-api.md)
+and [manga Home additions](https://github.com/owouwuiwi/nyanime-source/blob/main/docs/manga-home-api.md).
 
 ## Covers, logos and rich presentation
 
@@ -259,7 +262,7 @@ reader direction and double-page display belong to Nyanime.
 Verified external IDs can be supplied through `nyanime.tracking.v1` and optional
 manga `SMangaTrackingMetadata`. Include only IDs proven to match the same edition
 and season. Aliases are hints, not proof. The synthetic demo deliberately supplies
-no real catalogue IDs. See [tracking metadata](https://github.com/owouwuiwi/nyanime/blob/main/docs/extension-tracking-metadata.md).
+no real catalogue IDs. See [tracking metadata](https://github.com/owouwuiwi/nyanime-source/blob/main/docs/extension-tracking-metadata.md).
 
 The optional manga `ReleaseScheduleProvider` contract can supply source-declared
 future chapter releases. Use their typed SDK models, real
@@ -333,7 +336,7 @@ in the starter for compatibility; new logic should use the combined suspend API.
 | `getFilterList()` | Fresh `FilterList` | Labels match declared Home controls |
 | `getPopularManga(page)` / `getLatestUpdates(page)` | One-based page → `MangasPage` | Stable references and correct `hasNextPage` |
 | `getSearchManga(page, query, filters)` | Query/filter snapshot → `MangasPage` | Apply supported filters on every page |
-| `getMangaUpdate(manga, chapters, fetchDetails, fetchChapters)` | Existing state/flags → `SMangaUpdate` | Share a fetch; retain unrequested state |
+| Optional API 1.6: `getMangaUpdate(manga, chapters, fetchDetails, fetchChapters)` | Existing state/flags → `SMangaUpdate` | Share a fetch; retain unrequested state |
 | `getPageList(chapter)` | `SChapter` → `List<Page>` | Zero-based indices in original page sequence |
 
 For direct final image URLs, this override belongs inside `MangaSource`:
@@ -413,20 +416,23 @@ empty programme interval, stale data or a failed request.
 The demo declares no guide, no rewind and no shared live clock. Its finite original
 test signal exercises loading without pretending to be a broadcaster. Do not create
 fake anime episodes to enter the player. The host owns live controls, PiP, Cast,
-room negotiation and local buffering. See [TV API](https://github.com/owouwuiwi/nyanime/tree/main/tv-api).
+room negotiation and local buffering. See [TV API](https://github.com/owouwuiwi/nyanime-source/tree/main/tv-api).
 
 ## Addons, guides and settings
 
-These optional families are not bundled into the four source examples:
+Guide and addon have independent modules and compile-only contracts. Their
+small examples verify loading and UI without inventing real guide data or
+starting permanent services: [guide](../guide/src/main/kotlin/example/placeholder/guide/GuideFactory.kt),
+[addon](../addon/src/main/kotlin/example/placeholder/addon/AddonFactory.kt).
 
-* **RIN addons:** schema 2, `medium: addon`, `RinAddon` from `addon-api`.
+* **Hosted addons:** component-free signed APKs, `medium: addon`, `HostedAddon` from `addon-api` (legacy `RinAddon` ABI retained).
   The host supplies `RinAddonHost` and `RinAddonContext`; use only declared
   UI/task capabilities. Release views and work on cancellation. An APK addon is
-  a separate intent/PendingIntent protocol; it is not interchangeable with RIN.
-* **Episode guides:** schema 2, `medium: guide`, `RinEpisodeGuideProvider`.
+  a separate intent/PendingIntent protocol; it requires Android installation when registered components are needed.
+* **Episode guides:** schema 2, `medium: guide`, `EpisodeGuideProvider` (legacy `RinEpisodeGuideProvider` ABI retained).
   Search receives public work identity; guide references resolve episode
   classifications. Unknown classifications remain unknown; no private progress
-  or stream credentials are required. See [guide contract](https://github.com/owouwuiwi/nyanime/blob/main/docs/episode-guides.md).
+  or stream credentials are required. See [guide contract](https://github.com/owouwuiwi/nyanime-source/blob/main/docs/episode-guides.md).
 * **Source preferences:** use `ConfigurableAnimeSource` / `ConfigurableSource`
   when the adapter actually needs settings. Store only source-owned values;
   avoid requesting credentials for publicly available fixtures.
@@ -456,56 +462,40 @@ put credentials in shared links, or replace missing data with plausible guesses.
 ## Signing and updates
 
 Build the selected examples before packaging. When changing the shared parser,
-build all four:
+build all six:
 
 ```sh
 python -m unittest discover -s tests -v
-./gradlew :common:test :video:assembleDebug :manga:assembleDebug :news:assembleRelease :tv:assembleDebug
+./gradlew :common:test :video:assembleRelease :manga:assembleRelease :news:assembleRelease :tv:assembleRelease :guide:assembleRelease :addon:assembleRelease
 ```
 
-For local video development, create/reuse a private identity and verify the RIN:
+For every module, build a release APK and sign it with the same retained
+publisher identity. The signed bytes are used by both Android installation and
+private import. Local demo signing also avoids Android's shared debug key:
 
 ```sh
-python tools/pack.py video --development
-python tools/verify_rin.py dist/placeholder-video-1.0.0.rin
+python tools/sign_apk.py video --development --build-tools /sdk/build-tools/35.0.1
+python tools/sign_apk.py manga --development --build-tools /sdk/build-tools/35.0.1
+python tools/sign_apk.py news --development --build-tools /sdk/build-tools/35.0.1
+python tools/sign_apk.py tv --development --build-tools /sdk/build-tools/35.0.1
+python tools/sign_apk.py guide --development --build-tools /sdk/build-tools/35.0.1
+python tools/sign_apk.py addon --development --build-tools /sdk/build-tools/35.0.1
 ```
 
-Replace `video` with `manga` or `tv` to package another built example. The filename
-uses `template.json.versionName`; adjust it when changing that value. Outputs and
-public verification reports appear in `dist/`. The packer extracts DEX/assets from
-the build container and signs the RIN independently of Android debug signing.
-Your development key/certificate are created once in `.local/`: **back them up
-privately and never commit them**. For distribution, use your own retained identity:
+For distribution, replace `--development` with your own `--key` and
+`--certificate` paths. Preserve that key/certificate pair for updates. Signing
+rejects debuggable APKs, checks implementation-only DEX, aligns the archive and
+verifies the APK signature. Keep keys out of Git, CI logs and downloads.
 
-RIN contains `classes.dex`, optional secondary DEX, `assets/`, `manifest.json`,
-`META-INF/rin.cert` and `META-INF/rin.sig`. The signature covers the **exact manifest
-bytes**; its hash map covers every payload file. Use RSA-SHA256 or ECDSA-SHA256 and
-an X.509 DER certificate. The starter creates a local development RSA identity.
+APK signatures authenticate all executable and resource bytes. The optional
+`assets/nyanime/package-v1.json` must agree with Android identity, version, API and
+entry metadata. It does not replace Android signatures with a second envelope.
+Do not create new RINs; `verify_rin.py` remains only for legacy compatibility.
 
-```sh
-python tools/pack.py video --key /private/publisher.pem --certificate /private/publisher.der
-python tools/verify_rin.py dist/placeholder-video-1.0.0.rin
-```
-
-Keep the private key out of source, CI logs and website downloads. Reusing another
-publisher's package/source IDs or replacing a lost key is not a valid update.
-The host checks integrity, supported API, package, source IDs, signer and increasing
-versions before activation. Same-version changed bytes and downgrades are refused.
-Local import displays the certificate fingerprint for explicit approval; a valid
-signature alone is not a claim of publisher reputation.
-
-Current RIN limits include 32 MiB, 512 ZIP entries and 64 KiB manifest. News APKs
-use normal Android APK signing; development debug signatures must be replaced for
-public distribution. Build `:news:assembleRelease`, then run:
-
-```sh
-python tools/sign_apk.py --build-tools /path/to/android-sdk/build-tools/35.0.1 --key /private/publisher.pem --certificate /private/publisher.der
-```
-
-This rejects debuggable APKs, checks implementation classes, aligns the archive
-and verifies the resulting signature. `--development` replaces the two key
-arguments to reuse the local demo identity. Keep `JAVA_HOME` set: `apksigner`
-needs Java too. Native API namespace strings remain compatibility identifiers.
+Run the compiled base ABI checks in [Interoperability](INTEROPERABILITY.md)
+before claiming another host is supported. A numeric API match and a successful
+build alone are insufficient. Keep optional Nyanime classes separate from the
+base source/factory and shared parsers.
 
 The optional `assets/nyanime/extension-v1.json` declares distribution identity and
 manual/repository update policy. This starter uses manual updates and has no
@@ -514,15 +504,20 @@ bundle its addresses or private signing material into the host.
 
 ## Install and check the result
 
-Use Nyanime supporting standalone RIN import, **version code 232+**, with the
-pinned APIs. Open **Store → Load RIN**, choose the video/manga/TV file, review the
-publisher fingerprint and explicitly approve it. Enable English sources if hidden.
-No catalogue registration is required for local import.
+Use a Nyanime version supporting the APK import contract. Open
+**Store → Import extension**, choose a signed APK, inspect the publisher
+fingerprint and explicitly approve it. No catalogue is required. In a catalogue,
+choose **Install** for Android/shared use or **Import** for private automatic
+updates. Enable English sources if hidden.
 
-For local News development, build `:news:assembleDebug` and install
-`news/build/outputs/apk/debug/news-debug.apk`. Public distribution uses the signed
-non-debug APK described above. Approve the source in Nyanime and select it in News.
-Never install both APK and RIN copies of the same source or rename APKs to RINs.
+The same verified publisher can have both copies: the newest compatible version
+is active, while equal versions retain the user's active mode. Changing mode at
+the same version requires identical signed APK bytes. An unrelated publisher,
+changed same-version bytes or a downgrade cannot silently take over.
+
+An APK imported without a known update origin is labelled manual; associate a
+compatible configured catalogue explicitly when available. Legacy `.rin` files
+remain readable, but never rename one into an APK.
 
 | Example | Expected result |
 | --- | --- |
@@ -541,8 +536,8 @@ become title identities or duplicate library entries.
 | --- | --- |
 | Java/Gradle setup fails | `JAVA_HOME` points to JDK 17; the specified platform and Build Tools are installed |
 | Another website shows demos or fails parsing | Adapt request routes, selectors, mapping and URL policy, not just `baseUrl` |
-| RIN import is rejected | Run `verify_rin.py`; check API floor, payload, DEX dependencies, signer and version |
-| Source missing | Correct family/format, explicit trust approval, language/visibility, no duplicate APK/RIN |
+| APK import is rejected | Verify APK signature, API, publisher, DEX dependencies and any required Android components |
+| Source missing | Correct family/format, explicit trust approval, language/visibility, active version/mode and source identity |
 | Home missing or wrong content | Source name/language match, category enabled, IDs and filter labels/defaults correct |
 | Home JSON edits disappear | Update `configure.py`; it overwrites generated declarations |
 | Filters work only on page one | Retain query/filter/date state and calculate next-page state from filtered results |
@@ -577,7 +572,7 @@ Run the Python tool tests and `:common:test` before packaging. Parser tests oper
 on the original website fixtures and cover pagination, filters, scoped Home data,
 identity, page order, URL boundaries, shared requests and failure recovery.
 Python tests cover configuration, signatures and tampering. Packaging verifies
-payload hashes and emits a public fingerprint/SHA-256 report beside the RIN.
+payload hashes and emits a public fingerprint/SHA-256 report beside the APK.
 
 `tools/generate_site.py --ffmpeg /path/to/ffmpeg` regenerates original images,
 HTML/JSON, VTT subtitles and synthetic videos. It needs Pillow and FFmpeg only for

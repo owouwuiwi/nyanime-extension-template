@@ -19,3 +19,6 @@ dependencies are compile-only in extension artifacts; tests use them locally.
 Their licenses are not replaced by this notice. The Gradle wrapper retains
 its upstream Apache-2.0 license and notices. No native player is distributed
 inside these reference extensions.
+
+Independent upstream compile-only ABI profiles and their exact sources/licenses
+are recorded in SDK-NOTICE.md and sdk/portable-sdk-lock.json.

@@ -6,10 +6,10 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-TOP = {'CHANGELOG.md', 'README.md', 'NOTICE', 'LICENSE', 'requirements-tools.txt', 'requirements-site.txt',
+TOP = {'SDK-NOTICE.md', 'CHANGELOG.md', 'README.md', 'NOTICE', 'LICENSE', 'requirements-tools.txt', 'requirements-site.txt',
        'template.json', 'settings.gradle.kts', 'build.gradle.kts', 'gradle.properties',
        'gradlew', 'gradlew.bat', '.gitignore', 'VERIFICATION.md'}
-DIRS = {'video', 'manga', 'news', 'tv', 'common', 'tools', 'tests', 'docs', 'website', 'gradle', 'sdk', 'web'}
+DIRS = {'video', 'manga', 'news', 'tv', 'guide', 'addon', 'common', 'tools', 'tests', 'docs', 'website', 'gradle', 'sdk', 'web'}
 
 
 def files():
