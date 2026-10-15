@@ -41,7 +41,9 @@
       <button class="t-tab" type="button" data-filter="news" aria-pressed="false">News <span>6</span></button>
       <button class="t-tab" type="button" data-filter="tv" aria-pressed="false">TV <span>1</span></button>
     </div><p class="demo-count" role="status" aria-live="polite">22 demos to explore</p></div>
-    <div class="demo-grid">{{demo_cards}}</div>
+    <div class="demo-context" aria-live="polite" hidden><div><strong data-demo-heading>Video, manga, news &amp; TV</strong><p data-demo-description>Original pages, ready to explore. Choose a family to see its contract.</p></div><a class="text-link" data-demo-guide href="guide/#choosing-a-family">Compare the APIs <span aria-hidden="true">↗</span></a></div>
+    <div class="demo-grid" id="demo-grid">{{demo_cards}}</div>
+    <div class="demo-pagination" hidden><p data-demo-progress role="status" aria-live="polite"></p><button class="button demo-more" type="button" aria-controls="demo-grid">Show more examples <span aria-hidden="true">↓</span></button></div>
     <div class="fixture-note"><span aria-hidden="true">i</span><p>These are developer fixtures, not a streaming catalogue. Video samples are intentionally black and silent; the TV signal is a finite test file.</p><a href="ASSETS.md">About the media <span aria-hidden="true">↗</span></a></div>
   </section>
 

@@ -55,6 +55,45 @@
     const pill = filters.querySelector('.t-tabs-pill');
     const count = document.querySelector('.demo-count');
     const grid = document.querySelector('.demo-grid');
+    const context = document.querySelector('.demo-context');
+    const pagination = document.querySelector('.demo-pagination');
+    const more = pagination?.querySelector('.demo-more');
+    const progress = pagination?.querySelector('[data-demo-progress]');
+    const families = {
+      all: ['Video, manga, news & TV', 'Original pages, ready to explore. Choose a family to see its contract.', 'Compare the APIs', 'choosing-a-family'],
+      video: ['From discovery to playback.', 'Title details, episode lists, video qualities and subtitle tracks.', 'Video contract', 'video-adapter'],
+      manga: ['From the first chapter to the last page.', 'Title details, chapter lists and pages in reading order.', 'Manga contract', 'manga-adapter'],
+      news: ['Articles that feel at home.', 'Search, pagination and native article blocks with text and images.', 'News contract', 'news-adapter'],
+      tv: ['A small signal. A real integration.', 'A finite test stream. No live programme guide or invented broadcasts.', 'TV contract', 'tv-adapter']
+    };
+    let currentFilter = 'all';
+    let visibleLimit = 8;
+    const renderCards = () => {
+      const matching = cards.filter(card => currentFilter === 'all' || currentFilter === card.dataset.kind);
+      const shown = matching.slice(0, visibleLimit);
+      const shownSet = new Set(shown);
+      cards.forEach(card => { card.hidden = !shownSet.has(card); });
+      if (grid) grid.dataset.filter = currentFilter;
+      if (count) count.textContent = `${matching.length} ${matching.length === 1 ? 'demo' : 'demos'} to explore`;
+      if (progress) progress.textContent = `${shown.length} of ${matching.length} ${matching.length === 1 ? 'example' : 'examples'}`;
+      if (pagination) pagination.hidden = matching.length <= 8;
+      if (more) {
+        const remaining = matching.length - shown.length;
+        more.hidden = remaining === 0;
+        more.firstChild.textContent = remaining ? `Show ${Math.min(8, remaining)} more ${remaining === 1 ? 'example' : 'examples'} ` : '';
+      }
+      return shown;
+    };
+    const updateContext = () => {
+      if (!context) return;
+      const [heading, description, label, anchor] = families[currentFilter];
+      context.querySelector('[data-demo-heading]').textContent = heading;
+      context.querySelector('[data-demo-description]').textContent = description;
+      const link = context.querySelector('[data-demo-guide]');
+      link.firstChild.textContent = `${label} `;
+      link.href = `/example/guide/#${anchor}`;
+      context.hidden = false;
+    };
     const movePill = instant => {
       const selected = buttons.find(button => button.getAttribute('aria-pressed') === 'true');
       if (!selected || !pill) return;
@@ -65,20 +104,19 @@
     };
     filters.dataset.enhanced = '';
     movePill(true);
+    renderCards();
+    updateContext();
     const choose = selected => {
       if (selected.getAttribute('aria-pressed') === 'true') return;
       buttons.forEach(button => button.setAttribute('aria-pressed', String(button === selected)));
       movePill(false);
-      const apply = () => {
-        if (grid) grid.dataset.filter = selected.dataset.filter;
-        let visible = 0;
-        cards.forEach(card => { card.hidden = selected.dataset.filter !== 'all' && selected.dataset.filter !== card.dataset.kind; if (!card.hidden) visible++; });
-        count.textContent = `${visible} ${visible === 1 ? 'demo' : 'demos'} to explore`;
-      };
+      currentFilter = selected.dataset.filter;
+      visibleLimit = 8;
       // A local fade avoids taking a full-page snapshot of a long demo grid.
       // Set the content immediately, including during rapid filter changes.
       grid?.getAnimations().forEach(animation => animation.cancel());
-      apply();
+      renderCards();
+      updateContext();
       if (grid && !reduced.matches && grid.animate) {
         const animation = grid.animate([{opacity: .35}, {opacity: 1}],
           {duration: 250, easing: 'cubic-bezier(.22,1,.36,1)'});
@@ -88,6 +126,16 @@
         animation.addEventListener('cancel', clear, {once: true});
       }
     };
+    more?.addEventListener('click', event => {
+      const previouslyShown = new Set(cards.filter(card => !card.hidden));
+      visibleLimit += 8;
+      const added = renderCards().filter(card => !previouslyShown.has(card));
+      added.forEach((card, index) => reveal(card, index));
+      // Keep keyboard focus in the newly revealed content, including when the
+      // final page removes the button. Pointer activation keeps its position.
+      if (event.detail === 0) added[0]?.focus();
+      else if (more.hidden && document.activeElement === more) more.blur();
+    });
     buttons.forEach((button, index) => {
       button.addEventListener('click', () => choose(button));
       button.addEventListener('keydown', event => {
