@@ -4,7 +4,8 @@ Six independent extension examples and **one complete developer guide**.
 Learn the public APIs, adapt a website, declare Home categories, build, sign,
 install and maintain an extension without changing Nyanime.
 
-**[Read the complete guide](docs/GUIDE.md)** · [Interoperability](docs/INTEROPERABILITY.md) ·
+**[I already build AniYomi/Mihon extensions](docs/GUIDE.md#for-existing-extension-authors)** ·
+**[This is my first extension](docs/GUIDE.md#set-up-and-build-the-unchanged-example)** ·
 [Read on the website](https://owouwuiwi.github.io/example/guide/) ·
 [Explore the original demos](https://owouwuiwi.github.io/example/)
 
@@ -17,12 +18,18 @@ install and maintain an extension without changing Nyanime.
 | Guide | Component-free work search, explicit no-results state | `.apk` |
 | Addon | Component-free hosted UI, appearance and return navigation | `.apk` |
 
+One publisher-signed APK can be **installed through Android** or **imported privately
+into a supporting Nyanime version**. No catalogue is included or required. Existing
+compatible sources do not need a rewrite. A manually imported file has manual
+updates until the user explicitly associates a compatible origin.
+
 The guide explains each family's methods and models with code examples,
 a release checklist and troubleshooting. Matching compile-only SDK JARs and
 API reference sources, Gradle wrapper, signing tools, fixtures and tests are included.
 
-Download the [complete kit](https://github.com/owouwuiwi/nyanime-extension-template/releases/download/v1.0.1/placeholder-extension-kit.zip),
-or use this repository as a GitHub template. Optional prebuilt examples require
+Download the [complete kit](https://owouwuiwi.github.io/example/downloads/v1.0.2/placeholder-extension-kit.zip),
+or use this repository as a GitHub template. The refreshed kit/guide is v1.0.2;
+the signed reference APKs remain the unchanged, verified v1.0.1 artifacts. Optional prebuilt examples require
 explicit publisher approval:
 
 [Video APK](https://github.com/owouwuiwi/nyanime-extension-template/releases/download/v1.0.1/placeholder-video-1.0.1.apk) ·

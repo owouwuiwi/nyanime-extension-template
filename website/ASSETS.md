@@ -6,4 +6,6 @@ Nyanime branding and the bundled font files are excluded from this dedication. B
 
 The generated demo media and sample text are dedicated to the public domain under CC0-1.0: https://creativecommons.org/publicdomain/zero/1.0/
 
+The presentation SVG illustrations in art/ are original and also dedicated to CC0-1.0. They are separate from the versioned parser fixtures.
+
 The generator and extension code use Apache-2.0. FFmpeg is a local generation tool; its binary is not distributed in this kit or website. The hashes of generated media are in assets-manifest.json. The TV test file is finite; it is not advertised as a real live broadcast.

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.2 — developer guide and website
+
+- Offer a short path for existing AniYomi/Mihon authors and a guided first build within one canonical guide.
+- Explain the same signed APK's Install/Import choices, optional origin association, individual/catalogue consent and deferred atomic activation.
+- Add the pinned ABI matrix, isolated optional factory example, operational troubleshooting and a brief glossary.
+- Bring the published playground design into the starter's reproducible website templates without changing parser fixtures.
+- Refresh the downloadable kit and its checksums manually; reference APKs remain the exact signed v1.0.1 bytes and runtime evidence.
+
+
 ## 1.0.1
 
 - Produce publisher-signed APKs for Android installation or private import; preserve read-only legacy verification.

@@ -3,22 +3,157 @@
 <meta name="description" content="The Nyanime extension playground. Original demo content and one complete guide to Nyanime extension APIs, Home categories, building, signing and testing.">
 <meta name="robots" content="noindex"><link rel="icon" href="/example/brand/mark.svg" type="image/svg+xml">
 <script>try{const t=localStorage.getItem('nyanime-theme');document.documentElement.dataset.theme=t==='light'||t==='dark'?t:matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'}catch{}</script>
-<link rel="stylesheet" href="/example/brand/nyanime.css?v=2"><link rel="stylesheet" href="/example/style.css?v=3">
-<script src="/example/playground.js?v=2" defer></script><title>Developer guide · Nyanime</title></head><body>
+<link rel="stylesheet" href="/example/brand/nyanime.css?v=2"><link rel="stylesheet" href="/example/style.css?v=5">
+<script src="/example/playground.js?v=5" defer></script><title>Developer guide · Nyanime</title></head><body>
 <a class="skip" href="#main">Skip to content</a><div class="site-shell">
-<header class="header glass"><a href="/" class="brand" aria-label="Nyanime home"><img class="logo dark-logo" src="/example/brand/logo-dark.svg" width="164" height="47" alt="Nyanime"><img class="logo light-logo" src="/example/brand/logo-light.svg" width="164" height="47" alt="Nyanime"></a><a class="playground-label" href="/example/">Playground <span>FOR CREATORS</span></a><nav aria-label="Playground navigation"><a class="desktop-nav" href="/example/#demos">Demos</a><a class="nav-download" href="/example/guide/">Start building <span aria-hidden="true">↗</span></a><button class="theme-button" aria-label="Switch to light theme"><svg class="theme-icon theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg><svg class="theme-icon theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.5 14.4A8.6 8.6 0 0 1 9.6 3.5a8.6 8.6 0 1 0 10.9 10.9Z"/></svg></button></nav></header>
-<main id="main" class="docs-layout"><article class="docs-article" data-source-sha256="70804530a54db990580339c327948962443d80e7eeb8728f795859c6e87c119d"><h1 id="build-a-nyanime-extension">Build a Nyanime extension</h1>
-<p>One complete guide: understand the APIs, adapt a website, declare Home categories,
-build, sign, install and maintain an extension. Start with the unchanged example,
-then follow the section for your source family. You do not need to change Nyanime.</p>
+<header class="header glass"><a href="/" class="brand" aria-label="Nyanime home"><img class="logo dark-logo" src="/example/brand/logo-dark.svg" width="164" height="47" alt="Nyanime"><img class="logo light-logo" src="/example/brand/logo-light.svg" width="164" height="47" alt="Nyanime"></a><a class="playground-label" href="/example/">Playground <span>FOR CREATORS</span></a><nav aria-label="Playground navigation"><a class="desktop-nav" href="/example/#demos">Demos</a><a class="nav-download" href="/example/guide/"><span class="guide-label-long">Developer guide</span><span class="guide-label-short">Guide</span> <span aria-hidden="true">↗</span></a><button class="theme-button" aria-label="Switch to light theme"><svg class="theme-icon theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg><svg class="theme-icon theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.5 14.4A8.6 8.6 0 0 1 9.6 3.5a8.6 8.6 0 1 0 10.9 10.9Z"/></svg></button></nav></header>
+
+<main id="main" class="docs-layout"><article class="docs-article" data-source-sha256="cc862334559fcf54601fb82c1aa2d51fbde86a9d4fe0b17b0954a4964adfe461"><h1 id="build-a-nyanime-extension">Build a Nyanime extension</h1>
+<p>Build, sign and test an extension without changing Nyanime. Choose the path
+that matches your experience; both lead to the same complete guide.</p>
+<nav class="guide-entry-points" aria-label="Choose your starting point">
+<a href="#for-existing-extension-authors"><strong>I already build extensions</strong><span>Keep your AniYomi/Mihon source. Check its ABI, then add only what you need. →</span></a>
+<a href="#set-up-and-build-the-unchanged-example"><strong>This is my first extension</strong><span>Set up, build an original example, sign it and try Install or Import. →</span></a>
+</nav>
+
 <p>The examples use original geometric drawings, sample articles and intentionally
 black, silent videos from <a href="https://owouwuiwi.github.io/example/">the playground</a>.
 <strong>Nyanime does not promote piracy in any way or form.</strong> Bring your own content and
 use only material you are legally entitled to access.
 <a href="https://owouwuiwi.github.io/responsible-use/">Read our position</a>.</p>
-<p>This guide targets the exported SDK in <a href="https://github.com/owouwuiwi/nyanime-extension-template/blob/main/sdk/sdk-lock.json">sdk-lock.json</a>.
-That file records the host revision, source hashes and API JAR hashes. New optional
-capabilities may require a newer host; they are not supported by every old version.</p>
+<p>This is the canonical guide for the starter, website and downloadable kit.
+New releases are <strong>one publisher-signed APK</strong>: install it through Android or import
+it privately into a supporting Nyanime version. Neither mode requires a catalogue.
+All six families share the same inventory, verification and management flow.</p>
+<p><strong>Compatibility has a scope.</strong> The video APK was tested on AniYomi 0.18.2.1 and
+the manga APK on Mihon 0.21.2, as well as Nyanime. Other families need a host that
+implements their own contracts. See the exact artifacts and runtime limits in
+<a href="https://github.com/owouwuiwi/nyanime-extension-template/blob/main/VERIFICATION.md">VERIFICATION.md</a>. An API number alone is not proof of ABI
+compatibility.</p>
+<p>The <a href="https://github.com/owouwuiwi/nyanime-extension-template/blob/main/sdk/portable-sdk-lock.json">upstream profile lock</a> pins independent base
+APIs. The <a href="https://github.com/owouwuiwi/nyanime-extension-template/blob/main/sdk/sdk-lock.json">Nyanime SDK lock</a> records the optional host export,
+source hashes and compile-only JAR hashes. They serve different purposes; do not
+replace your base API with a host-specific export just to enable private import.</p>
+<h2 id="for-existing-extension-authors">For existing extension authors</h2>
+<p>You do not need to rewrite a working AniYomi/Mihon extension or publish a second
+format. First test your existing <strong>signed release APK</strong> in Nyanime. If its base
+family and ABI are supported, both installation modes can use those same bytes.
+Keep your package, publisher certificate, source IDs, normal discovery metadata
+and update versioning stable.</p>
+<table>
+<thead>
+<tr>
+<th>Keep as it is</th>
+<th>Add only if your extension needs it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Your parser, requests, URLs, filters and pagination</td>
+<td>Declarative Home categories/sections in <code>assets/aniyomi/home-v1.json</code></td>
+</tr>
+<tr>
+<td>Base factory and upstream method/field signatures</td>
+<td>A separately declared optional Nyanime factory for code capabilities</td>
+</tr>
+<tr>
+<td>Package, source IDs and retained publisher key</td>
+<td>Matching signed distribution metadata for an explicit update origin/policy</td>
+</tr>
+<tr>
+<td>Compile-only host/shared dependencies</td>
+<td>Rich metadata through a supported optional contract</td>
+</tr>
+<tr>
+<td>One signed APK for compatible hosts</td>
+<td>Tests for every host/version and mode you actually claim</td>
+</tr>
+</tbody>
+</table>
+<h3 id="the-shortest-useful-path">The shortest useful path</h3>
+<ol>
+<li><strong>Keep your identity.</strong> Retain the package, source IDs, publisher key, normal discovery metadata and base factory; changing installation mode does not require a rewrite.</li>
+<li><strong>Check the real compiled ABI.</strong> Use the applicable pinned profile below, replacing the classes path with your release output. For a different target, pin its actual upstream profile rather than lowering Nyanime's APIs.</li>
+<li><strong>Build and sign your existing release APK.</strong> Bundle your implementation only; host/shared libraries remain <code>compileOnly</code>. Use the same signed bytes for Install and Import.</li>
+<li><strong>Test both modes and the foreign host you claim.</strong> Verify explicit approval, identity, search, details, actual playback/reading and a higher-version update. A catalogue is optional.</li>
+<li><strong>Add integration only where needed.</strong> Start with the <a href="#home-categories-sections-and-filters">declarative Home contract</a>. Isolate Nyanime-only code from the base factory as shown below.</li>
+</ol>
+<p>Run the check for your family, from the starter root:</p>
+<pre><code class="language-sh">python tools/check_abi.py --profile aniyomi-video-api --classes video/build/tmp/kotlin-classes/release
+python tools/check_abi.py --profile aniyomi-manga-api --classes manga/build/tmp/kotlin-classes/release
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Family</th>
+<th>Pinned compile-only profile</th>
+<th>Verified scope / requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Video</td>
+<td><code>aniyomi-video-api</code>, anime API 17</td>
+<td>Same APK tested on AniYomi 0.18.2.1; Nyanime paths are recorded in the verification report</td>
+</tr>
+<tr>
+<td>Manga</td>
+<td><code>aniyomi-manga-api</code>, common manga API 1.4</td>
+<td>Same APK tested on Mihon 0.21.2; Nyanime paths are recorded in the verification report</td>
+</tr>
+<tr>
+<td>News</td>
+<td>Exported <code>news-api.jar</code>, API 1</td>
+<td>Needs the news contract; no AniYomi/Mihon compatibility claim</td>
+</tr>
+<tr>
+<td>TV</td>
+<td>Exported <code>tv-api.jar</code>, API 1</td>
+<td>Needs the TV contract; the fixture has no real live clock or guide</td>
+</tr>
+<tr>
+<td>Guide</td>
+<td>Exported <code>addon-api.jar</code>, guide API 1</td>
+<td>Needs <code>EpisodeGuideProvider</code>; the fixture returns honest empty results</td>
+</tr>
+<tr>
+<td>Hosted addon</td>
+<td>Exported <code>addon-api.jar</code></td>
+<td>Needs <code>HostedAddon</code>; registered Android components require Install</td>
+</tr>
+</tbody>
+</table>
+<h3 id="isolate-optional-capabilities">Isolate optional capabilities</h3>
+<p>Keep the portable factory in your base namespace. Put the optional factory in a
+<strong>separate compilation unit/namespace</strong>, compiled against the matching Nyanime
+SDK. The smallest valid attachment demonstrates the boundary without claiming a
+feature it does not implement:</p>
+<pre><code class="language-kotlin">package example.publisher.optional
+
+import nyanime.extension.api.SourceCapabilitiesFactory
+
+class PresentationFactory : SourceCapabilitiesFactory {
+    override fun attach(sources: List&lt;Any&gt;): List&lt;Any&gt; = sources
+}
+</code></pre>
+<p>Declare it in the APK application's metadata:</p>
+<pre><code class="language-xml">&lt;meta-data
+    android:name=&quot;nyanime.optional.factory&quot;
+    android:value=&quot;example.publisher.optional.PresentationFactory&quot; /&gt;
+</code></pre>
+<p>This passthrough adds no behavior. Implement and test an actual optional contract
+inside that isolated unit when needed. The base source/factory must <strong>not</strong> import,
+construct, inherit from, or expose host-only classes in its method signatures.
+Nyanime calls <code>attach</code> after loading trusted base sources; preserve their ordered
+medium/source identities. A failed optional attachment leaves the base usable.
+Other hosts ignore this optional metadata and must be able to load the base alone.</p>
+<p>When checking combined class output, <code>--optional-prefix example/publisher/optional/</code>
+may exclude only that isolated unit from the <strong>upstream</strong> ABI check. Do not exclude
+your base factory or parser. Check the optional unit against the Nyanime profile,
+retain <code>compileOnly</code> dependencies and test the final DEX/package as well.</p>
+<p>Continue with <a href="#signing-and-updates">signing and updates</a> and the
+<a href="#release-checklist">real-device checklist</a>. The sections below explain each
+contract in detail without requiring a source rewrite.</p>
 <h2 id="architecture-and-ownership">Architecture and ownership</h2>
 <p>An extension implements a <strong>Kotlin API loaded by Nyanime</strong>. This is different
 from a website's HTTP API: your extension fetches HTML or JSON, parses it, and
@@ -55,8 +190,8 @@ returns the typed models that Nyanime understands.</p>
 </tr>
 </tbody>
 </table>
-<p>Extensions execute code in the host process after approval. <strong>An APK extension is a signed
-package format, not a security sandbox.</strong> Never request unrelated permissions,
+<p>Extensions execute code in the host process after approval. <strong>An APK extension contains signed
+executable code; it is not a security sandbox.</strong> Never request unrelated permissions,
 inspect host databases, depend on private host classes or run permanent services.
 Use public APIs and cancellation-aware network calls. Approval is explicit;
 installation must never silently trust a publisher.</p>
@@ -66,7 +201,7 @@ Kotlin, networking or parsing libraries. Keep the default implementation namespa
 while learning; if changing it, update the packer's allowed namespace too.</p>
 <p>The host SDK export includes source-api, core-common, news-api, tv-api and addon-api.
 Base video/manga modules compile against separately pinned upstream profiles;
-see <a href="https://github.com/owouwuiwi/nyanime-extension-template/blob/main/docs/INTEROPERABILITY.md">Interoperability</a> and <a href="https://github.com/owouwuiwi/nyanime-extension-template/blob/main/sdk/portable-sdk-lock.json">profile lock</a>.
+see the <a href="#for-existing-extension-authors">existing-author path</a> and <a href="https://github.com/owouwuiwi/nyanime-extension-template/blob/main/sdk/portable-sdk-lock.json">profile lock</a>.
 Each module uses only the contracts it needs. Keep SDK dependencies aligned with
 the target host; do not confuse an extension build library with the runtime API.</p>
 <h2 id="choosing-a-family">Choosing a family</h2>
@@ -121,7 +256,8 @@ the target host; do not confuse an extension build library with the runtime API.
 <p>These are independent source families, not mandatory dependencies. The guide
 and addon modules demonstrate separate, component-free contracts: they do not
 pretend to be video sources. Every new output is a signed APK. Legacy <code>.rin</code>
-files remain a compatibility format; do not rename an APK to <code>.rin</code>.</p>
+files can still be imported and restored; no forced migration is required.
+Renaming a <code>.rin</code> file to <code>.apk</code> (or the reverse) does not convert it.</p>
 <p>Read the working implementations alongside this guide:
 <a href="https://github.com/owouwuiwi/nyanime-extension-template/blob/main/video/src/main/kotlin/example/placeholder/video/VideoSource.kt">video</a>,
 <a href="https://github.com/owouwuiwi/nyanime-extension-template/blob/main/manga/src/main/kotlin/example/placeholder/manga/MangaSource.kt">manga</a>,
@@ -133,22 +269,82 @@ Exact public interfaces are included locally in
 <a href="https://github.com/owouwuiwi/nyanime-extension-template/blob/main/sdk/sources/news-api/src/main/kotlin/nyanime/news/api/NewsSource.kt">news API</a> and
 <a href="https://github.com/owouwuiwi/nyanime-extension-template/blob/main/sdk/sources/tv-api/src/main/kotlin/nyanime/tv/api/TvSource.kt">TV API</a>.</p>
 <h2 id="set-up-and-build-the-unchanged-example"><span id="1-get-ready" class="doc-anchor" aria-hidden="true"></span>Set up and build the unchanged example</h2>
+<p><strong>First extension? Start here.</strong> Complete the unchanged synthetic example before
+adapting a website. No catalogue, Nyanime account or paid developer service is
+needed. An initial SDK/dependency download can take time; this is not a promise
+of an instant first build.</p>
+<h3 id="1-prepare-your-tools">1. Prepare your tools</h3>
 <p>Use <strong>Use this template</strong> on the <a href="https://github.com/owouwuiwi/nyanime-extension-template">starter repository</a>,
-clone it, or extract the <a href="https://owouwuiwi.github.io/example/downloads/placeholder-extension-kit.zip">complete kit</a>.
+clone it, or extract the <a href="https://owouwuiwi.github.io/example/downloads/v1.0.2/placeholder-extension-kit.zip">complete kit</a>.
 Open a terminal in the directory containing <code>template.json</code> and <code>gradlew</code>.</p>
+<p>For the verified import flow, use <strong>Nyanime 0.45.0.1 (build 238) or newer</strong>.
+The package contract floor and the versions tested are distinct; consult the
+verification report before claiming an older combination.</p>
 <p>Install <strong>JDK 17</strong>, <strong>Android SDK platform 36 / Build Tools 35.0.1</strong> and
 <strong>Python 3.10+</strong>. Set <code>JAVA_HOME</code> to the JDK directory. Set <code>ANDROID_HOME</code> to
 the SDK directory, or create <code>local.properties</code> with <code>sdk.dir=/your/android/sdk</code>.
 Android Studio's SDK Manager can install the specified platform and tools.
 On Windows, replace <code>./gradlew</code> with <code>./gradlew.bat</code> in every command below.</p>
+<h3 id="2-build-one-original-example">2. Build one original example</h3>
+<p>The commands below choose video. For manga, replace <code>video</code> with <code>manga</code> in both
+the Gradle task and signing command. Keep the demo configuration for this first
+local test; choose your own stable identity before publishing.</p>
 <pre><code class="language-sh">python -m pip install -r requirements-tools.txt
+python tools/configure.py
 python -m unittest discover -s tests -v
 ./gradlew :common:test :video:assembleRelease
+</code></pre>
+<p>On Windows PowerShell, the Gradle command is:</p>
+<pre><code class="language-powershell">.\gradlew.bat :common:test :video:assembleRelease
 </code></pre>
 <p>This tests the parser and creates <code>video/build/outputs/apk/release/video-release-unsigned.apk</code>.
 Sign it before installation. For every family, the signed release APK is the
 distributable artifact. Keep the public demo URL unchanged
 for the first build; another website requires another parser.</p>
+<h3 id="3-sign-then-try-the-same-apk">3. Sign, then try the same APK</h3>
+<p>For the unchanged local demo, use the helper's persistent development identity.
+Replace the Build Tools path with the directory installed on your computer:</p>
+<pre><code class="language-sh">python tools/sign_apk.py video --development --build-tools /path/to/android-sdk/build-tools/35.0.1
+</code></pre>
+<p>On Windows, a typical path can contain spaces; quote it:</p>
+<pre><code class="language-powershell">python tools/sign_apk.py video --development --build-tools &quot;C:/path/to/Android/Sdk/build-tools/35.0.1&quot;
+</code></pre>
+<p>The file is <code>dist/placeholder-video-1.0.1.apk</code> with this starter configuration.
+The helper creates/reuses its owned demo identity under ignored <code>.local/</code>, not
+Android's shared debug key. Keep the identity if you want to test updates. Do not
+commit it or include it in a download. For your public extension, use and back up
+your own publisher key/certificate as explained under <a href="#signing-and-updates">signing</a>.</p>
+<p>Choose either route; neither is the required default:</p>
+<table>
+<thead>
+<tr>
+<th>Install</th>
+<th>Import</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Open the signed APK with Android, complete installation, then approve the publisher in Nyanime. Compatible hosts can discover the Android package too.</td>
+<td>In Nyanime, open <strong>Store → Import extension</strong>, choose the APK and approve its verified publisher. The executable copy stays private to Nyanime.</td>
+</tr>
+<tr>
+<td>Android manages the installed package.</td>
+<td>No Android installation is required for a component-free extension.</td>
+</tr>
+</tbody>
+</table>
+<p>Both routes run extension code with the host's permissions after approval.
+Approve only a publisher you trust. For these manually distributed demos,
+<strong>Manual updates · no catalogue associated</strong> is expected. Automatic updates need
+an explicitly associated compatible origin; importing a file does not invent one.</p>
+<h3 id="4-check-it-then-make-it-yours">4. Check it, then make it yours</h3>
+<p>Enable the example's English source if hidden. Open its demo Home, a title and
+an episode/chapter. A black silent video is intentional; seek and try subtitles.
+The manga example must display the actual original pages in order.</p>
+<p>Next, <a href="#configure-identity-and-discovery">configure your own identity</a>, adapt the
+parser, and follow the family-specific section. Before calling it supported,
+complete the <a href="#release-checklist">release checklist</a>. A successful compilation is
+not a device test. The <a href="#glossary">glossary</a> explains the terms used below.</p>
 <p>The matching compile-only SDK and Gradle wrapper are included. Only when targeting
 a different matching Nyanime checkout, export its API modules again:</p>
 <pre><code class="language-sh">python tools/prepare_sdk.py --host /path/to/nyanime --build
@@ -314,8 +510,8 @@ the filtered result, not the unfiltered catalogue.</p>
 <code>primary: true</code> can opt a Home into the initial destination; this starter leaves
 it unset. Limits: version 1, 64 KiB, 8 Homes, 16 sections per Home, 100-character
 labels. Keep IDs unique within one declaration and unknown values optional.</p>
-<p>See the authoritative <a href="https://github.com/owouwuiwi/nyanime-source/blob/main/docs/extension-home-api.md">Home contract</a>
-and <a href="https://github.com/owouwuiwi/nyanime-source/blob/main/docs/manga-home-api.md">manga Home additions</a>.</p>
+<p>See the authoritative <a href="https://github.com/owouwuiwi/nyanime/blob/v0.45.0.1/docs/extension-home-api.md">Home contract</a>
+and <a href="https://github.com/owouwuiwi/nyanime/blob/v0.45.0.1/docs/manga-home-api.md">manga Home additions</a>.</p>
 <h2 id="covers-logos-and-rich-presentation">Covers, logos and rich presentation</h2>
 <p>Return <code>thumbnail_url</code> and, for video, <code>background_url</code> on normal source models.
 Keep stable public URLs when the image has not changed so host image caches work.
@@ -344,7 +540,7 @@ reader direction and double-page display belong to Nyanime.</p>
 <p>Verified external IDs can be supplied through <code>nyanime.tracking.v1</code> and optional
 manga <code>SMangaTrackingMetadata</code>. Include only IDs proven to match the same edition
 and season. Aliases are hints, not proof. The synthetic demo deliberately supplies
-no real catalogue IDs. See <a href="https://github.com/owouwuiwi/nyanime-source/blob/main/docs/extension-tracking-metadata.md">tracking metadata</a>.</p>
+no real catalogue IDs. See <a href="https://github.com/owouwuiwi/nyanime/blob/v0.45.0.1/docs/extension-tracking-metadata.md">tracking metadata</a>.</p>
 <p>The optional manga <code>ReleaseScheduleProvider</code> contract can supply source-declared
 future chapter releases. Use their typed SDK models, real
 source dates and stated availability. Do not fabricate a schedule or require a
@@ -382,14 +578,19 @@ tracking, AniSkip and personal progress remain host responsibilities.</p>
 <td>Keep query and filters on every page</td>
 </tr>
 <tr>
-<td><code>getAnimeEpisodeUpdate(anime, episodes, fetchDetails, fetchEpisodes)</code></td>
-<td>Existing state/flags → <code>SAnimeEpisodeUpdate</code></td>
-<td>Preserve unrequested state; fetch requested changes</td>
+<td><code>getAnimeDetails(anime)</code></td>
+<td>Stable title reference → <code>SAnime</code></td>
+<td>Return real details from that title</td>
 </tr>
 <tr>
-<td><code>getAnimeSeasonUpdate(anime, seasons, fetchDetails, fetchSeasons)</code></td>
-<td>Existing state/flags → <code>SAnimeSeasonUpdate</code></td>
-<td>Return verified season relations only</td>
+<td><code>getEpisodeList(anime)</code></td>
+<td><code>SAnime</code> → <code>List&lt;SEpisode&gt;</code></td>
+<td>Keep stable references, numbers and publication times</td>
+</tr>
+<tr>
+<td><code>getSeasonList(anime)</code></td>
+<td><code>SAnime</code> → <code>List&lt;SAnime&gt;</code></td>
+<td>Verified relations only; empty for this synthetic fixture</td>
 </tr>
 <tr>
 <td><code>getHosterList(episode)</code></td>
@@ -403,33 +604,22 @@ tracking, AniSkip and personal progress remain host responsibilities.</p>
 </tr>
 </tbody>
 </table>
-<p>This complete override belongs <strong>inside the existing <code>VideoSource</code></strong>; its <code>site</code>,
-<code>asAnime()</code> and <code>episode()</code> helpers are defined in that source file:</p>
-<pre><code class="language-kotlin">override suspend fun getAnimeEpisodeUpdate(
-    anime: SAnime,
-    episodes: List&lt;SEpisode&gt;,
-    fetchDetails: Boolean,
-    fetchEpisodes: Boolean,
-): SAnimeEpisodeUpdate {
-    if (!fetchDetails &amp;&amp; !fetchEpisodes) {
-        return SAnimeEpisodeUpdate(anime, episodes)
-    }
-    val details = site.details(anime.url)
-    return SAnimeEpisodeUpdate(
-        if (fetchDetails) asAnime(details.entry) else anime,
-        if (fetchEpisodes) details.parts.map(::episode) else episodes,
-    )
-}
+<p>This override belongs <strong>inside the existing <code>VideoSource</code></strong>. Its <code>site</code> and
+<code>episode()</code> helpers are defined in that source file and link against the pinned
+upstream video profile:</p>
+<pre><code class="language-kotlin">override suspend fun getEpisodeList(anime: SAnime): List&lt;SEpisode&gt; =
+    site.details(anime.url).parts.map(::episode)
 </code></pre>
 <p><code>SAnime</code> carries title, stable URL, cover, background, description, genres and
 status. <code>SEpisode</code> carries URL, name, numeric episode number and publication time.
 The mapping helpers show their exact assignments. Use <code>initialized = true</code> only
 when supplying the intended complete details; do not claim a title is completed
 merely because its currently available episodes ended.</p>
-<p><code>VideoSource.kt</code> implements the public suspend API. <code>getAnimeEpisodeUpdate</code> shares
-one extraction when details and episodes are requested together, and does no
-network work when both flags are false. Season discovery returns none because the
-demo publishes no season relations. A real adapter returns only verified relations.</p>
+<p><code>VideoSource.kt</code> implements the upstream anime API 17 suspend entry points and
+coherent legacy HTTP hooks. It does not depend on Nyanime-only combined-update
+models. The optional host SDK also exposes richer update contracts; keep those
+outside the portable base when using them. Season discovery returns none because
+the demo publishes no season relations. A real adapter returns only verified ones.</p>
 <p>Episode → hoster → video are distinct steps. The demo parses <code>&lt;source&gt;</code> quality
 variants and <code>&lt;track&gt;</code> subtitles from its own HTML. Supply <code>Video.headers</code> only
 when required. Subtitle/audio <code>Track</code> models carry a URL and language, not a
@@ -438,13 +628,16 @@ Do not fetch or initialize the native player yourself. Source
 references let the host handle sharing, Cast and rooms through generic contracts.</p>
 <p><code>Video.resolution</code> is vertical pixels, such as 360. <code>initialized = true</code> describes
 an already resolved stream. A video-page iframe still needs extension-owned
-resolution; iframe HTML is not a playable video. Older detail/list hooks remain
-in the starter for compatibility; new logic should use the combined suspend API.</p>
+resolution; iframe HTML is not a playable video. Keep the entry points required by the chosen base profile. Do not copy a
+host-only combined-update signature into an upstream factory to enable import.</p>
 <h2 id="manga-adapter">Manga adapter</h2>
+<p>The portable example targets the pinned <strong>manga API 1.4 HTTP/Rx profile</strong>. These
+are its implemented hooks; host-specific suspend/combined-update interfaces are
+not required for its base to load on Mihon.</p>
 <table>
 <thead>
 <tr>
-<th>Method</th>
+<th>Hook</th>
 <th>Input → output</th>
 <th>Implementation rule</th>
 </tr>
@@ -456,46 +649,55 @@ in the starter for compatibility; new logic should use the combined suspend API.
 <td>Labels match declared Home controls</td>
 </tr>
 <tr>
-<td><code>getPopularManga(page)</code> / <code>getLatestUpdates(page)</code></td>
-<td>One-based page → <code>MangasPage</code></td>
+<td><code>popularMangaRequest/Parse</code> / <code>latestUpdatesRequest/Parse</code></td>
+<td>One-based page ↔ request/response → <code>MangasPage</code></td>
 <td>Stable references and correct <code>hasNextPage</code></td>
 </tr>
 <tr>
-<td><code>getSearchManga(page, query, filters)</code></td>
-<td>Query/filter snapshot → <code>MangasPage</code></td>
-<td>Apply supported filters on every page</td>
+<td><code>searchMangaRequest/Parse</code></td>
+<td>Query/filter snapshot ↔ request/response → <code>MangasPage</code></td>
+<td>Apply query and filters on every page</td>
 </tr>
 <tr>
-<td>Optional API 1.6: <code>getMangaUpdate(manga, chapters, fetchDetails, fetchChapters)</code></td>
-<td>Existing state/flags → <code>SMangaUpdate</code></td>
-<td>Share a fetch; retain unrequested state</td>
+<td><code>mangaDetailsRequest/Parse</code></td>
+<td><code>SManga</code> ↔ response → <code>SManga</code></td>
+<td>Return actual details for the same identity</td>
 </tr>
 <tr>
-<td><code>getPageList(chapter)</code></td>
-<td><code>SChapter</code> → <code>List&lt;Page&gt;</code></td>
+<td><code>chapterListRequest/Parse</code></td>
+<td><code>SManga</code> ↔ response → <code>List&lt;SChapter&gt;</code></td>
+<td>Stable chapter references and publication metadata</td>
+</tr>
+<tr>
+<td><code>pageListRequest/Parse</code></td>
+<td><code>SChapter</code> ↔ response → <code>List&lt;Page&gt;</code></td>
 <td>Zero-based indices in original page sequence</td>
 </tr>
 </tbody>
 </table>
-<p>For direct final image URLs, this override belongs inside <code>MangaSource</code>:</p>
-<pre><code class="language-kotlin">override suspend fun getPageList(chapter: SChapter): List&lt;Page&gt; =
-    site.pages(chapter.url).mapIndexed { index, url -&gt;
-        Page(index, imageUrl = url)
+<p>For final image URLs, this override belongs inside the existing <code>MangaSource</code>.
+<code>Response</code>, <code>SiteParser</code> and <code>address</code> already come from that file:</p>
+<pre><code class="language-kotlin">override fun pageListParse(response: Response): List&lt;Page&gt; =
+    response.use {
+        SiteParser.pages(it.body.string(), address).mapIndexed { index, url -&gt;
+            Page(index, imageUrl = url)
+        }
     }
 </code></pre>
-<p><code>SManga</code> describes the title; <code>SChapter</code> its chapter URL, name, number and date.
-The demo returns chapters newest first; the host owns the user's display order.
+<p><code>SManga</code> describes the title; <code>SChapter</code> its URL, name, number and date. The demo
+returns chapters newest first; the host owns the user's display order.
 <strong>Image pages stay in published reading sequence.</strong> Never reverse, pre-pair or
-drop pages for double-page display: that belongs to the reader.</p>
-<p><code>MangaSource.kt</code> implements public suspend methods and coherent legacy HTTP/Rx
-hooks, including query, filters and page state. <code>getMangaUpdate</code> combines extraction.
-Page models hold final image URLs, so <code>imageUrlParse</code> is not needed for this site.
-If a site publishes intermediate image pages, implement that hook instead of
-guessing a final URL. The demo includes a five-page chapter to exercise odd totals.</p>
-<p>When adapting, keep both suspend methods and legacy HTTP/parse hooks coherent:
-<code>popularMangaRequest/Parse</code>, <code>searchMangaRequest/Parse</code> and detail/chapter/page
-hooks must not retain demo routes. For intermediate image pages, set <code>Page.url</code>
-and implement <code>imageUrlParse</code>; for final images, set <code>Page.imageUrl</code> as above.</p>
+drop pages for double-page display: that belongs to the reader. The demo includes
+a five-page chapter to exercise odd totals.</p>
+<p>Keep each request/parse pair coherent when adapting a site. For intermediate
+image pages, set <code>Page.url</code> and implement <code>imageUrlParse</code>; for final images, set
+<code>Page.imageUrl</code> as above. The demo never needs a second image-page lookup.</p>
+<p>Nyanime's optional manga API 1.6 <code>getMangaUpdate</code> / <code>SMangaUpdate</code> contract can
+combine requests and preserve unrequested state, but this base example does not
+implement or reference it. Neither that contract nor <code>SMangaHomeMetadata</code>,
+<code>SMangaTrackingMetadata</code> or <code>ReleaseScheduleProvider</code> should leak into a factory
+that must load on a host providing only the common 1.4 profile. Use a separate
+optional attachment or an explicitly different tested target profile.</p>
 <h2 id="news-adapter">News adapter</h2>
 <table>
 <thead>
@@ -584,7 +786,7 @@ empty programme interval, stale data or a failed request.</p>
 <p>The demo declares no guide, no rewind and no shared live clock. Its finite original
 test signal exercises loading without pretending to be a broadcaster. Do not create
 fake anime episodes to enter the player. The host owns live controls, PiP, Cast,
-room negotiation and local buffering. See <a href="https://github.com/owouwuiwi/nyanime-source/tree/main/tv-api">TV API</a>.</p>
+room negotiation and local buffering. See <a href="https://github.com/owouwuiwi/nyanime/tree/v0.45.0.1/tv-api">TV API</a>.</p>
 <h2 id="addons-guides-and-settings">Addons, guides and settings</h2>
 <p>Guide and addon have independent modules and compile-only contracts. Their
 small examples verify loading and UI without inventing real guide data or
@@ -593,12 +795,14 @@ starting permanent services: <a href="https://github.com/owouwuiwi/nyanime-exten
 <ul>
 <li><strong>Hosted addons:</strong> component-free signed APKs, <code>medium: addon</code>, <code>HostedAddon</code> from <code>addon-api</code> (legacy <code>RinAddon</code> ABI retained).
   The host supplies <code>RinAddonHost</code> and <code>RinAddonContext</code>; use only declared
-  UI/task capabilities. Release views and work on cancellation. An APK addon is
-  a separate intent/PendingIntent protocol; it requires Android installation when registered components are needed.</li>
+  UI/task capabilities. Release views and work on cancellation. An addon using
+  registered Android components follows the intent/PendingIntent protocol and
+  declares <code>nyanime.extension.requires_android=true</code>; it supports Install only.
+  An APK is a package format, not a statement that it needs Android components.</li>
 <li><strong>Episode guides:</strong> schema 2, <code>medium: guide</code>, <code>EpisodeGuideProvider</code> (legacy <code>RinEpisodeGuideProvider</code> ABI retained).
   Search receives public work identity; guide references resolve episode
   classifications. Unknown classifications remain unknown; no private progress
-  or stream credentials are required. See <a href="https://github.com/owouwuiwi/nyanime-source/blob/main/docs/episode-guides.md">guide contract</a>.</li>
+  or stream credentials are required. See <a href="https://github.com/owouwuiwi/nyanime/blob/v0.45.0.1/docs/episode-guides.md">guide contract</a>.</li>
 <li><strong>Source preferences:</strong> use <code>ConfigurableAnimeSource</code> / <code>ConfigurableSource</code>
   when the adapter actually needs settings. Store only source-owned values;
   avoid requesting credentials for publicly available fixtures.</li>
@@ -612,9 +816,11 @@ credentials and query strings. That is this adapter's policy, not a hardcoded
 Nyanime limitation. Adapters needing signed query strings or other media origins
 must adapt and test <code>SiteAddress</code> explicitly. Changing only <code>baseUrl</code> is not enough;
 do not fix this by accepting arbitrary URLs or disabling certificate validation.</p>
-<p>Video/manga share the host client, a bounded timeout, cancellable calls and a
-1 MiB response limit. A per-source Mutex coalesces concurrent catalogue fetches
-for 60 seconds. Failed responses are not cached. No app-wide client, crawler,
+<p>Both adapters derive their network client from the host and use a bounded call
+timeout. The video helper additionally enforces a 1 MiB response limit and uses
+a per-source Mutex to coalesce catalogue fetches for 60 seconds; failures are
+not cached. Manga keeps coherent HTTP/Rx request/parse hooks and closes responses.
+These details are not a claim that every family has the same cache or size limit. No app-wide client, crawler,
 background refresh loop or eager video scan is created. News/TV use supplied HTTP
 contracts. Rethrow cancellation; do not hide errors behind endless retries.</p>
 <p>Handle no results, removed items, changed markup, missing images, unavailable
@@ -644,7 +850,7 @@ verifies the APK signature. Keep keys out of Git, CI logs and downloads.</p>
 <code>assets/nyanime/package-v1.json</code> must agree with Android identity, version, API and
 entry metadata. It does not replace Android signatures with a second envelope.
 Do not create new RINs; <code>verify_rin.py</code> remains only for legacy compatibility.</p>
-<p>Run the compiled base ABI checks in <a href="https://github.com/owouwuiwi/nyanime-extension-template/blob/main/docs/INTEROPERABILITY.md">Interoperability</a>
+<p>Run the compiled base ABI checks in the <a href="#for-existing-extension-authors">existing-author path</a>
 before claiming another host is supported. A numeric API match and a successful
 build alone are insufficient. Keep optional Nyanime classes separate from the
 base source/factory and shared parsers.</p>
@@ -653,18 +859,51 @@ manual/repository update policy. This starter uses manual updates and has no
 embedded catalogue. A separately maintained public catalogue is optional; never
 bundle its addresses or private signing material into the host.</p>
 <h2 id="install-and-check-the-result"><span id="5-open-in-nyanime" class="doc-anchor" aria-hidden="true"></span>Install and check the result</h2>
-<p>Use a Nyanime version supporting the APK import contract. Open
-<strong>Store → Import extension</strong>, choose a signed APK, inspect the publisher
-fingerprint and explicitly approve it. No catalogue is required. In a catalogue,
-choose <strong>Install</strong> for Android/shared use or <strong>Import</strong> for private automatic
-updates. Enable English sources if hidden.</p>
-<p>The same verified publisher can have both copies: the newest compatible version
-is active, while equal versions retain the user's active mode. Changing mode at
-the same version requires identical signed APK bytes. An unrelated publisher,
-changed same-version bytes or a downgrade cannot silently take over.</p>
-<p>An APK imported without a known update origin is labelled manual; associate a
-compatible configured catalogue explicitly when available. Legacy <code>.rin</code> files
-remain readable, but never rename one into an APK.</p>
+<p>Nyanime's <strong>Store</strong> manages anime, manga, news, TV, guide and addon packages in
+one inventory. <strong>Install</strong> and <strong>Import</strong> use the same publisher-signed APK:</p>
+<ul>
+<li><strong>Install:</strong> Android manages the package, and other compatible hosts may discover
+  it. A cancelled Android installation is not reported as a successful import.</li>
+<li><strong>Import:</strong> Nyanime keeps a private immutable copy. Open <strong>Store → Import
+  extension</strong> to choose a local APK, without adding a catalogue or choosing a
+  storage directory. The preview shows identity, version and publisher fingerprint
+  before execution is approved.</li>
+<li><strong>Android-component addon:</strong> <strong>Install</strong> is the only option. The app explains:
+  “This extension needs Android components. Use Install.” A component-free hosted
+  addon or episode guide can use private import.</li>
+</ul>
+<p>Choose the mode that fits your use. Enable English sources if hidden. Base API
+namespaces, source identities and the underlying parser do not change with mode.
+Legacy <code>.rin</code> files can still be imported/restored; no conversion is forced, and
+renaming a file is not conversion. New starter tools publish APKs only.</p>
+<h3 id="approval-is-separate-from-discovery">Approval is separate from discovery</h3>
+<p>A signature identifies the publisher; it does not prove that code is harmless.
+Nyanime asks for individual approval. Adding a catalogue does not approve its
+executables. An optional <strong>Trust extensions from this catalogue</strong> consent is
+initially off, revocable, and covers only current/future extensions the user
+chooses to add. It installs nothing automatically and grants no authority to
+replace an unrelated publisher or uninstall an extension.</p>
+<h3 id="updates-and-update-origins">Updates and update origins</h3>
+<p>Imported automatic updates start enabled, with a switch per extension. A worker with a network constraint checks on a six-hour interval; an overdue check at app opening
+uses the same coordinator. <strong>Android may defer work.</strong> Do not promise an exact
+time, a six-hour delivery deadline, or instant background updates.</p>
+<p>An import without a known origin shows <strong>Manual updates · no catalogue associated</strong>.
+The user can import a newer signed APK manually or choose <strong>Associate an update
+catalogue</strong> explicitly. Only a configured catalogue offering the same package and
+publisher can be associated. Origin association and execution consent are separate;
+no official/preconfigured catalogue is included or required by the starter.</p>
+<h3 id="safe-activation-and-mode-changes">Safe activation and mode changes</h3>
+<p>Download, integrity/signature verification and factory preflight happen before an
+atomic active-version switch. The package must preserve its family and known
+source IDs. Files are immutable. A failed/interrupted update keeps the previous
+version available, and a disabled extension stays disabled.</p>
+<p>Reading, playback, Cast and active addon tasks defer activation. Finish that work,
+then retry rather than deleting the active package. The same approved publisher
+can have Android and private copies: the newest compatible version is used;
+equal versions retain the selected mode. A same-version mode change requires
+identical APK bytes. Downgrades, changed same-version bytes and an unrelated
+publisher cannot silently take over. A verified supported certificate rotation
+is different from an unrelated new certificate.</p>
 <table>
 <thead>
 <tr>
@@ -687,65 +926,159 @@ remain readable, but never rename one into an APK.</p>
 </tr>
 <tr>
 <td>TV</td>
-<td>Synthetic channel plays its finite black test file; guide explicitly unavailable</td>
+<td>Finite black synthetic signal; guide and shared live clock explicitly unavailable</td>
+</tr>
+<tr>
+<td>Guide</td>
+<td>Provider settings and honest no-results responses; no fabricated classifications</td>
+</tr>
+<tr>
+<td>Hosted addon</td>
+<td>Original hosted view and return to Nyanime; no permanent background service</td>
 </tr>
 </tbody>
 </table>
-<p>Home categories can be enabled/reordered in the user's settings. They disappear
-when the last enabled contributing extension is removed. Their IDs must not
-become title identities or duplicate library entries.</p>
+<p>Home categories can be enabled/reordered in user settings. They disappear when
+the last enabled contributor is removed. Their IDs must not become title
+identities or duplicate library entries. See <a href="https://github.com/owouwuiwi/nyanime-extension-template/blob/main/VERIFICATION.md">VERIFICATION.md</a>
+for what was tested, with which artifacts and host versions.</p>
 <h2 id="troubleshooting">Troubleshooting</h2>
+<p>The quoted messages below come from Nyanime 0.45.0.1's English UI. A later host
+may phrase them differently; check the error before changing identities or keys.</p>
 <table>
 <thead>
 <tr>
-<th>Symptom</th>
-<th>Check first</th>
+<th>Message / symptom</th>
+<th>What it means</th>
+<th>Next action</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Java/Gradle setup fails</td>
-<td><code>JAVA_HOME</code> points to JDK 17; the specified platform and Build Tools are installed</td>
+<td>“Manual updates · no catalogue associated”</td>
+<td>The imported file has no associated update origin; this is not a failed import</td>
+<td>Import a newer verified APK manually, or use <strong>Associate an update catalogue</strong> with a compatible configured origin</td>
 </tr>
 <tr>
-<td>Another website shows demos or fails parsing</td>
-<td>Adapt request routes, selectors, mapping and URL policy, not just <code>baseUrl</code></td>
+<td>“No compatible catalogue is configured. You can still update by importing the file manually.”</td>
+<td>Nothing configured can provide an update for that publisher/package</td>
+<td>Keep manual updates, or configure and explicitly associate a compatible origin; do not invent a default catalogue</td>
 </tr>
 <tr>
-<td>APK import is rejected</td>
-<td>Verify APK signature, API, publisher, DEX dependencies and any required Android components</td>
+<td>“This extension needs Android components. Use Install.”</td>
+<td>Registered Android runtime components cannot be supplied by a private import</td>
+<td>Use <strong>Install</strong>, or redesign the addon as genuinely component-free; renaming it cannot fix this</td>
+</tr>
+<tr>
+<td>“This extension requires a different Nyanime version. Update the app or choose a compatible file.”</td>
+<td>Family/API/host requirements are incompatible</td>
+<td>Use a matching host/file and check actual compiled ABI; do not simply lower API numbers</td>
+</tr>
+<tr>
+<td>“The extension could not be replaced. Check its publisher, version and source identities, then choose the file again. Your previous version is unchanged.”</td>
+<td>Replacement validation did not preserve identity/version/publisher</td>
+<td>Compare the fingerprint, stable IDs, package and strictly higher version; preserve the existing key. A changed publisher needs explicit review</td>
+</tr>
+<tr>
+<td>“The file is not a valid signed extension or cannot be read. Choose an APK or a legacy .rin file.”</td>
+<td>The file is unreadable, malformed, unsigned or not the claimed package</td>
+<td>Re-download the original and verify its checksum/signature. Do not rename a legacy archive into an APK</td>
+</tr>
+<tr>
+<td>“Close playback, reading and active addons before updating an extension.”</td>
+<td>The old executable is still in use; Cast can also defer activation</td>
+<td>Finish the active session and retry; leave the verified previous copy intact</td>
+</tr>
+<tr>
+<td>“Update failed. The previous version remains available.”</td>
+<td>Download, verification or activation failed</td>
+<td>Check connectivity, artifact identity and logs, then retry; do not mark an unactivated version successful</td>
 </tr>
 <tr>
 <td>Source missing</td>
-<td>Correct family/format, explicit trust approval, language/visibility, active version/mode and source identity</td>
+<td>Family, discovery, consent, language, visibility or active mode may be wrong</td>
+<td>Inspect <strong>My extensions</strong>, approve the intended publisher and enable the source language</td>
 </tr>
 <tr>
-<td>Home missing or wrong content</td>
-<td>Source name/language match, category enabled, IDs and filter labels/defaults correct</td>
+<td>Another website fails parsing</td>
+<td>A URL change did not adapt the parser</td>
+<td>Update request routes, selectors, mapping and URL policy inside the extension</td>
 </tr>
 <tr>
-<td>Home JSON edits disappear</td>
-<td>Update <code>configure.py</code>; it overwrites generated declarations</td>
+<td>Home missing / generated edits disappear</td>
+<td>Source name/language, enabled category, IDs, labels or generator are inconsistent</td>
+<td>Fix the declaration and <code>configure.py</code> generator, not a hardcoded host route</td>
 </tr>
 <tr>
 <td>Filters work only on page one</td>
-<td>Retain query/filter/date state and calculate next-page state from filtered results</td>
+<td>Query/filter/date state was discarded</td>
+<td>Carry it to every request and calculate <code>hasNext</code> from filtered results</td>
 </tr>
 <tr>
-<td>Directory appears twice in links</td>
-<td>HTTP source <code>baseUrl</code> is origin; stored references include the website directory</td>
+<td><code>NoSuchMethodError</code> / <code>NoClassDefFoundError</code> in another host</td>
+<td>Actual ABI differs, or optional/shared classes leaked into the base</td>
+<td>Inspect compiled method/field descriptors, <code>compileOnly</code> packaging and the optional factory boundary; an API number is insufficient</td>
 </tr>
 <tr>
-<td>Demo video is black and silent</td>
-<td>Intentional; test seeking, both qualities and English subtitles</td>
+<td>Demo video black / TV guide missing</td>
+<td>This fixture is intentionally synthetic</td>
+<td>Test playback/seek/subtitles; do not invent content or guide entries</td>
 </tr>
 <tr>
-<td>No TV schedule</td>
-<td>Intentional: the finite fixture advertises no guide or live clock</td>
+<td>Java/Gradle fails</td>
+<td>Tools or paths do not match the prerequisites</td>
+<td>Check JDK 17, SDK platform 36, Build Tools 35.0.1 and <code>JAVA_HOME</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="glossary">Glossary</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Host</td>
+<td>Nyanime or another app loading an extension through a supported contract</td>
 </tr>
 <tr>
-<td>Update refused</td>
-<td>Same package, source IDs and signer; strictly higher <code>versionCode</code></td>
+<td>Family</td>
+<td>Video, manga, news, TV, guide or addon; each has its own API</td>
+</tr>
+<tr>
+<td>API / ABI profile</td>
+<td>Public operations / the actual JVM class, method and field signatures a compiled extension must link against</td>
+</tr>
+<tr>
+<td><code>compileOnly</code></td>
+<td>Available while compiling, supplied by the host at runtime; not bundled again in the extension</td>
+</tr>
+<tr>
+<td>Package / source ID</td>
+<td>Stable extension identity / stable content-provider identity; neither is a title's local database row</td>
+</tr>
+<tr>
+<td>Publisher fingerprint</td>
+<td>Hash identifying the signing certificate; review it before approving execution</td>
+</tr>
+<tr>
+<td>Install / Import</td>
+<td>Android-managed package / private executable copy in Nyanime, from the same signed APK</td>
+</tr>
+<tr>
+<td>Catalogue / origin</td>
+<td>Optional discovery index / explicitly associated location allowed to supply this package's updates</td>
+</tr>
+<tr>
+<td>Preflight / activation</td>
+<td>Validate and load-check first / atomically select the verified immutable version afterward</td>
+</tr>
+<tr>
+<td>Optional factory</td>
+<td>Separate Nyanime-only attachment loaded after the portable base; not a new required superclass</td>
 </tr>
 </tbody>
 </table>
@@ -796,6 +1129,7 @@ Compilation and signatures do not prove Home, reader, player or trust UI behavio
 Record host version and device separately from build results. Add site-specific
 parser fixtures/tests in the extension repository; the host stays generic.</p></article><aside class="doc-sidebar" aria-label="Documentation navigation"><p>THE DEVELOPER GUIDE</p><a href="/example/">← Back to the playground</a><nav class="doc-index" aria-label="In this guide"><div class="toc">
 <ul>
+<li><a href="#for-existing-extension-authors">For existing extension authors</a></li>
 <li><a href="#architecture-and-ownership">Architecture and ownership</a></li>
 <li><a href="#choosing-a-family">Choosing a family</a></li>
 <li><a href="#set-up-and-build-the-unchanged-example">Set up and build the unchanged example</a></li>
@@ -813,12 +1147,14 @@ parser fixtures/tests in the extension repository; the host stays generic.</p></
 <li><a href="#signing-and-updates">Signing and updates</a></li>
 <li><a href="#install-and-check-the-result">Install and check the result</a></li>
 <li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#glossary">Glossary</a></li>
 <li><a href="#release-checklist">Release checklist</a></li>
 <li><a href="#build-tests-and-reproducibility">Build, tests and reproducibility</a></li>
 </ul>
 </div>
 </nav><details class="doc-toc"><summary>In this guide</summary><div class="toc">
 <ul>
+<li><a href="#for-existing-extension-authors">For existing extension authors</a></li>
 <li><a href="#architecture-and-ownership">Architecture and ownership</a></li>
 <li><a href="#choosing-a-family">Choosing a family</a></li>
 <li><a href="#set-up-and-build-the-unchanged-example">Set up and build the unchanged example</a></li>
@@ -836,9 +1172,10 @@ parser fixtures/tests in the extension repository; the host stays generic.</p></
 <li><a href="#signing-and-updates">Signing and updates</a></li>
 <li><a href="#install-and-check-the-result">Install and check the result</a></li>
 <li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#glossary">Glossary</a></li>
 <li><a href="#release-checklist">Release checklist</a></li>
 <li><a href="#build-tests-and-reproducibility">Build, tests and reproducibility</a></li>
 </ul>
 </div>
 </details><a href="https://github.com/owouwuiwi/nyanime-extension-template/blob/main/docs/GUIDE.md">Read on GitHub ↗</a></aside></main>
-<footer class="footer playground-footer"><div class="footer-main"><a href="/example/" class="footer-wordmark">Made to be <span class="accent-text">made yours.</span></a><nav aria-label="Developer links"><a href="/example/guide/">Developer guide</a><a href="/example/guide/#choosing-a-family">API overview</a><a href="/example/guide/#release-checklist">Release checklist</a><a href="/example/ASSETS.md">Media credits</a></nav></div><p class="copyright-position"><strong>Nyanime does not promote piracy in any way or form.</strong><br>Bring your own content. Respect creators and copyright. <a href="https://owouwuiwi.github.io/responsible-use/">Our position ↗</a></p><p>© 2026 owouwuiwi &amp; Nyanime contributors. Original demo media: CC0-1.0.<br>Extension code: Apache-2.0. Font licences are included with the starter.</p></footer></div></body></html>
+<footer class="footer playground-footer"><div class="footer-main"><a href="/example/" class="footer-wordmark">Build something <span class="accent-text">that belongs.</span></a><nav aria-label="Developer links"><a href="/example/guide/">Developer guide</a><a href="/example/guide/#choosing-a-family">API overview</a><a href="/example/guide/#release-checklist">Release checklist</a><a href="/example/ASSETS.md">Media credits</a></nav></div><p class="copyright-position"><strong>Nyanime does not promote piracy in any way or form.</strong><br>Bring your own content. Respect creators and copyright. <a href="https://owouwuiwi.github.io/responsible-use/">Our position ↗</a></p><p>© 2026 owouwuiwi &amp; Nyanime contributors. Original demo media: CC0-1.0.<br>Extension code: Apache-2.0. Font licences are included with the starter.</p></footer></div></body></html>

@@ -1,0 +1,61 @@
+<main id="main">
+  <section class="playground-hero" aria-labelledby="playground-title">
+    <div class="playground-hero-copy">
+      <p class="eyebrow" data-reveal><span class="status-dot" aria-hidden="true"></span> THE EXTENSION PLAYGROUND</p>
+      <h1 id="playground-title" data-reveal>A little code.<br><span class="accent-text">A whole new world.</span></h1>
+      <p class="hero-description" data-reveal>Explore working examples. Get to know the APIs.<br class="wide-break"> Build an extension that feels at home in Nyanime.</p>
+      <div class="hero-actions" data-reveal><a class="button primary" href="#start-building">Start building <span aria-hidden="true">↗</span></a><a class="text-link" href="#demos">Explore the demos <span aria-hidden="true">↓</span></a></div>
+      <p class="hero-footnote" data-reveal>Original demo content. Open-source starter. No sign-in.</p>
+    </div>
+    <div class="creator-canvas" aria-label="An illustration of an extension connecting video, manga, news and TV to Nyanime" role="img" data-reveal>
+      <div class="canvas-orbit" aria-hidden="true"></div>
+      <div class="code-window glass" aria-hidden="true"><div class="window-bar"><span class="window-dots"><i></i><i></i><i></i></span><span>your-extension.kt</span><span>↗</span></div><code><span>override fun</span> createSources() =<br>&nbsp; listOf(<b>YourNextIdea</b>())</code><div class="code-caption"><i></i> Your code. Nyanime’s possibilities.</div></div>
+      <div class="canvas-preview" aria-hidden="true"><img src="/example/art/video-1.svg" width="960" height="640" alt="" fetchpriority="high"><div class="preview-caption"><span>YOUR NEXT ADVENTURE</span><strong>A new perspective.</strong><i>▶</i></div></div>
+      <div class="canvas-mini glass" aria-hidden="true"><img src="/example/art/manga-1.svg" width="960" height="640" alt=""><div><span>ONE MORE PAGE</span><strong>Something to create.</strong></div></div>
+      <div class="canvas-families glass" aria-hidden="true"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m10 7 8 5-8 5Z"/><rect x="3" y="4" width="18" height="16" rx="4"/></svg>Video</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6C9 4 6 4 3 5v14c3-1 6-1 9 1V6Zm0 0c3-2 6-2 9-1v14c-3-1-6-1-9 1"/></svg>Manga</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 8h10M7 12h4m3 0h3M7 16h10"/></svg>News</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="m8 2 4 4 4-4m-8 21h8"/></svg>TV</span></div>
+    </div>
+  </section>
+
+  <nav class="creator-steps" aria-label="Your starting points">
+    <a href="#demos"><span>01</span><div><strong>Explore the examples</strong><p>See what each family can do.</p></div><b aria-hidden="true">↓</b></a>
+    <a href="guide/"><span>02</span><div><strong>Understand the contracts</strong><p>One guide, from API to installation.</p></div><b aria-hidden="true">↗</b></a>
+    <a href="#starter"><span>03</span><div><strong>Make it your own</strong><p>Source, SDK and tools in one kit.</p></div><b aria-hidden="true">↓</b></a>
+  </nav>
+
+
+  <section class="section start-building" id="start-building" aria-labelledby="start-building-title">
+    <div class="section-heading" data-reveal><p class="eyebrow">YOUR EXPERIENCE. YOUR STARTING POINT.</p><h2 id="start-building-title">Take the right first step.</h2><p>One complete guide. A shorter route when you already know the basics.</p></div>
+    <div class="audience-paths">
+      <a class="audience-card glass" href="guide/#for-existing-extension-authors" data-reveal><span class="eyebrow">ALREADY BUILD EXTENSIONS?</span><h3>Keep your source.<br>Open new possibilities.</h3><p>Bring a compatible AniYomi/Mihon APK. Check the actual ABI and add optional Nyanime features only where they help.</p><span class="text-link">Take the short path <span aria-hidden="true">↗</span></span></a>
+      <a class="audience-card glass" href="guide/#set-up-and-build-the-unchanged-example" data-reveal><span class="eyebrow">STARTING FROM ZERO?</span><h3>Your first build.<br>Step by step.</h3><p>Get the tools, build an original example, keep your signing key safe, then try the same APK with Install or Import.</p><span class="text-link">Build your first extension <span aria-hidden="true">↗</span></span></a>
+    </div>
+    <div class="installation-explainer glass" data-reveal><div><p class="eyebrow">ONE SIGNED APK</p><h3>Two ways in.<br>Your choice.</h3><p>Video, manga, news, TV, guides and addons.<br>One inventory. No required catalogue.</p></div><div class="mode-options"><div><span>01</span><h4>Install</h4><p>Android manages the package. Other hosts can discover it when they implement its family and ABI.</p></div><div><span>02</span><h4>Import</h4><p>A private copy in Nyanime. Automatic updates need an explicitly associated compatible origin.</p></div><p class="mode-footnote">Addons needing registered Android components support Install only. Legacy RIN import and restore remain available.</p></div></div>
+  </section>
+
+  <section class="section demo-section" id="demos" aria-labelledby="demos-title">
+    <div class="section-heading demo-heading" data-reveal><div><p class="eyebrow">LEARN BY EXPLORING</p><h2 id="demos-title">Try the real thing.</h2></div><p>Real pages the example extensions can read.<br>Small, original fixtures. No third-party content.</p></div>
+    <div class="demo-toolbar"><div class="demo-filters t-tabs" role="group" aria-label="Filter demo types"><span class="t-tabs-pill" aria-hidden="true"></span>
+      <button class="t-tab" type="button" data-filter="all" aria-pressed="true">All <span>22</span></button>
+      <button class="t-tab" type="button" data-filter="video" aria-pressed="false">Video <span>9</span></button>
+      <button class="t-tab" type="button" data-filter="manga" aria-pressed="false">Manga <span>6</span></button>
+      <button class="t-tab" type="button" data-filter="news" aria-pressed="false">News <span>6</span></button>
+      <button class="t-tab" type="button" data-filter="tv" aria-pressed="false">TV <span>1</span></button>
+    </div><p class="demo-count" role="status" aria-live="polite">22 demos to explore</p></div>
+    <div class="demo-grid">{{demo_cards}}</div>
+    <div class="fixture-note"><span aria-hidden="true">i</span><p>These are developer fixtures, not a streaming catalogue. Video samples are intentionally black and silent; the TV signal is a finite test file.</p><a href="ASSETS.md">About the media <span aria-hidden="true">↗</span></a></div>
+  </section>
+
+  <section class="section developer-paths" aria-labelledby="paths-title">
+    <div class="section-heading" data-reveal><p class="eyebrow">LESS GUESSWORK. MORE BUILDING.</p><h2 id="paths-title">Find your starting point.</h2><p>Follow the complete guide, or jump straight to the part you need.</p></div>
+    <div class="learning-grid">
+      <a href="guide/" class="learning-card glass" data-reveal><span class="learning-icon" aria-hidden="true">{ }</span><span class="eyebrow">THE FOUNDATIONS</span><h3>From idea<br>to extension.</h3><p>Understand the host, choose a family and build the unchanged example first.</p><span class="text-link">Read the guide <span aria-hidden="true">↗</span></span></a>
+      <a href="guide/#home-categories-sections-and-filters" class="learning-card glass" data-reveal><span class="learning-icon" aria-hidden="true">⊞</span><span class="eyebrow">MAKE IT FEEL NATIVE</span><h3>Your content.<br>Its own Home.</h3><p>Connect categories, sections, search and filters through the public contracts.</p><span class="text-link">Explore the Home API <span aria-hidden="true">↗</span></span></a>
+      <a href="guide/#signing-and-updates" class="learning-card glass" data-reveal><span class="learning-icon" aria-hidden="true">↗</span><span class="eyebrow">READY TO SHARE</span><h3>Build. Sign.<br>Test. Repeat.</h3><p>Package an extension, verify its identity and check the result on a real device.</p><span class="text-link">See the release steps <span aria-hidden="true">↗</span></span></a>
+    </div>
+  </section>
+
+  <section class="section" id="starter" aria-labelledby="starter-title">
+    <div class="starter-panel glass" data-reveal><div class="starter-symbol" aria-hidden="true">↓</div><div><p class="eyebrow">EVERYTHING IN ONE PLACE</p><h2 id="starter-title">The first step.<br><span class="accent-text">Already put together.</span></h2><p>Six working examples, matching SDKs, original fixtures,<br class="wide-break"> signing tools and tests. Ready for your editor.</p><div class="starter-actions"><a href="https://owouwuiwi.github.io/example/downloads/v1.0.2/placeholder-extension-kit.zip" class="button primary">Download the starter kit <span aria-hidden="true">↓</span></a><a class="text-link" href="https://github.com/owouwuiwi/nyanime-extension-template">View the source <span aria-hidden="true">↗</span></a></div><p class="starter-meta">Kit v1.0.2 · reference APKs v1.0.1 <span>·</span> ZIP archive <span>·</span> <a href="https://owouwuiwi.github.io/example/downloads/v1.0.2/SDK-SHA256SUMS.txt">Verify checksum</a> <span>·</span> Apache-2.0 code / CC0 demo media</p></div></div>
+    <details class="prebuilt-examples"><summary><span>Looking for the installable examples?</span><span class="disclosure-icon" aria-hidden="true">+</span></summary><div class="prebuilt-body"><p>Optional, signed reference builds. Install only if you trust the publisher; approval in Nyanime is required. APK extensions contain executable code and are not a sandbox. All six reference APKs are the unchanged v1.0.1 artifacts.</p><div class="prebuilt-links"><a href="https://github.com/owouwuiwi/nyanime-extension-template/releases/download/v1.0.1/placeholder-video-1.0.1.apk">Video <span>APK ↓</span></a><a href="https://github.com/owouwuiwi/nyanime-extension-template/releases/download/v1.0.1/placeholder-manga-1.0.1.apk">Manga <span>APK ↓</span></a><a href="https://github.com/owouwuiwi/nyanime-extension-template/releases/download/v1.0.1/placeholder-news-1.0.1.apk">News <span>APK ↓</span></a><a href="https://github.com/owouwuiwi/nyanime-extension-template/releases/download/v1.0.1/placeholder-tv-1.0.1.apk">TV <span>APK ↓</span></a><a href="https://github.com/owouwuiwi/nyanime-extension-template/releases/download/v1.0.1/placeholder-guide-1.0.1.apk">Guide <span>APK ↓</span></a><a href="https://github.com/owouwuiwi/nyanime-extension-template/releases/download/v1.0.1/placeholder-addon-1.0.1.apk">Addon <span>APK ↓</span></a></div><a class="text-link" href="https://github.com/owouwuiwi/nyanime-extension-template/releases/download/v1.0.1/VERIFICATION.md">Publisher fingerprints &amp; checksums <span aria-hidden="true">↗</span></a></div></details>
+  </section>
+</main>

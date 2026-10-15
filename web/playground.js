@@ -54,8 +54,10 @@
     const cards = [...document.querySelectorAll('.demo-card')];
     const pill = filters.querySelector('.t-tabs-pill');
     const count = document.querySelector('.demo-count');
+    const grid = document.querySelector('.demo-grid');
     const movePill = instant => {
       const selected = buttons.find(button => button.getAttribute('aria-pressed') === 'true');
+      if (!selected || !pill) return;
       if (instant) pill.style.transition = 'none';
       pill.style.width = `${selected.offsetWidth}px`;
       pill.style.transform = `translateX(${selected.offsetLeft}px)`;
@@ -68,26 +70,56 @@
       buttons.forEach(button => button.setAttribute('aria-pressed', String(button === selected)));
       movePill(false);
       const apply = () => {
+        if (grid) grid.dataset.filter = selected.dataset.filter;
         let visible = 0;
         cards.forEach(card => { card.hidden = selected.dataset.filter !== 'all' && selected.dataset.filter !== card.dataset.kind; if (!card.hidden) visible++; });
         count.textContent = `${visible} ${visible === 1 ? 'demo' : 'demos'} to explore`;
       };
-      if (document.startViewTransition && !reduced.matches) { const transition = document.startViewTransition(apply); transition.ready.catch(() => {}); }
-      else apply();
+      // A local fade avoids taking a full-page snapshot of a long demo grid.
+      // Set the content immediately, including during rapid filter changes.
+      grid?.getAnimations().forEach(animation => animation.cancel());
+      apply();
+      if (grid && !reduced.matches && grid.animate) {
+        const animation = grid.animate([{opacity: .35}, {opacity: 1}],
+          {duration: 250, easing: 'cubic-bezier(.22,1,.36,1)'});
+        animations.add(animation);
+        const clear = () => animations.delete(animation);
+        animation.addEventListener('finish', clear, {once: true});
+        animation.addEventListener('cancel', clear, {once: true});
+      }
     };
     buttons.forEach((button, index) => {
       button.addEventListener('click', () => choose(button));
       button.addEventListener('keydown', event => {
         const delta = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
-        if (!delta) return;
+        if (!delta && event.key !== 'Home' && event.key !== 'End') return;
         event.preventDefault();
-        const next = buttons[(index + delta + buttons.length) % buttons.length];
+        const next = event.key === 'Home' ? buttons[0] : event.key === 'End' ? buttons[buttons.length - 1] : buttons[(index + delta + buttons.length) % buttons.length];
         next.focus(); choose(next);
       });
     });
     if ('ResizeObserver' in window) new ResizeObserver(() => movePill(true)).observe(filters);
     document.fonts?.ready.then(() => movePill(true));
   }
+
+  // The guide remains fully readable without JavaScript. Enhance its existing
+  // index without changing section IDs or the source-generated article body.
+  const guideLinks = [...document.querySelectorAll('.doc-index a')];
+  if (guideLinks.length && 'IntersectionObserver' in window) {
+    const guideObserver = new IntersectionObserver(entries => {
+      const current = entries.filter(entry => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (!current) return;
+      guideLinks.forEach(link => {
+        if (link.hash === `#${current.target.id}`) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      });
+    }, {rootMargin: '-130px 0px -55% 0px'});
+    document.querySelectorAll('.docs-article h2[id]').forEach(heading => guideObserver.observe(heading));
+  }
+  document.querySelectorAll('.doc-toc a').forEach(link => link.addEventListener('click', () => {
+    link.closest('details').open = false;
+  }));
 
   const video = document.querySelector('.cinema-frame video');
   document.querySelectorAll('[data-quality]').forEach(button => button.addEventListener('click', () => {
@@ -107,9 +139,21 @@
     if (!code) return;
     const button = document.createElement('button');
     button.type = 'button'; button.className = 'copy-code'; button.textContent = 'Copy'; button.setAttribute('aria-label', 'Copy code snippet');
+    const feedback = label => {
+      button.textContent = label;
+      button.setAttribute('aria-label', label);
+      setTimeout(() => { button.textContent = 'Copy'; button.setAttribute('aria-label', 'Copy code snippet'); }, 1800);
+    };
     button.addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText(code.textContent); button.textContent = 'Copied'; setTimeout(() => { button.textContent = 'Copy'; }, 1400); }
-      catch { button.textContent = 'Select text'; }
+      try { await navigator.clipboard.writeText(code.textContent); feedback('Copied'); }
+      catch {
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(code);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        feedback(selection?.toString() ? 'Text selected' : 'Select code manually');
+      }
     });
     pre.append(button);
   });

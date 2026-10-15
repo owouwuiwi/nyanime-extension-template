@@ -74,7 +74,7 @@ class WebsiteTest(unittest.TestCase):
         self.assertGreater(seen, 200)
 
     def test_every_title_has_its_own_details_and_original_images(self):
-        catalogue = json.loads((SITE / 'api/catalogue.json').read_text())
+        catalogue = json.loads((SITE / 'api/catalogue.json').read_text(encoding='utf-8'))
         for entry in catalogue['entries']:
             self.assertTrue((SITE / entry['url'] / 'index.html').is_file())
             self.assertTrue((SITE / entry['cover']).is_file())
@@ -87,12 +87,12 @@ class WebsiteTest(unittest.TestCase):
             data = (SITE / 'media' / name).read_bytes()
             self.assertIn(b'ftyp', data[:32])
             self.assertLess(data.index(b'moov'), data.index(b'mdat'), 'MP4 must support progressive playback')
-        self.assertTrue((SITE / 'media/demo-en.vtt').read_text().startswith('WEBVTT'))
+        self.assertTrue((SITE / 'media/demo-en.vtt').read_text(encoding='utf-8').startswith('WEBVTT'))
 
     def test_story_navigation_starts_at_one_and_moves_forward(self):
         for medium, part in [('video', 'episode'), ('manga', 'chapter')]:
-            first = (SITE / medium / 'demo-02' / (part + '-01') / 'index.html').read_text()
-            last = (SITE / medium / 'demo-02' / (part + '-03') / 'index.html').read_text()
+            first = (SITE / medium / 'demo-02' / (part + '-01') / 'index.html').read_text(encoding='utf-8')
+            last = (SITE / medium / 'demo-02' / (part + '-03') / 'index.html').read_text(encoding='utf-8')
             self.assertNotIn('Previous ' + part, first)
             self.assertIn('Next ' + part, first)
             self.assertIn(part + '-02/', first)

@@ -26,5 +26,6 @@
       "sha256": "50c1c11cc45cf8e3957d2e47108b23e33a196592b2978b0c50e635cb41b9920a",
       "sourceSha256": "38dbac807d20a82309536359558419ecdda12743fed76d9942a76f5ae3684198"
     }
-  }
+  },
+  "publicSource": "https://github.com/owouwuiwi/nyanime/tree/v0.45.0.1"
 }

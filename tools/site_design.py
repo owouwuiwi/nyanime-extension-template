@@ -11,22 +11,20 @@ ARROW = '<span aria-hidden="true">↗</span>'
 
 
 def shell(title, body):
-    return '''<!doctype html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#130f16">
-<meta name="description" content="The Nyanime extension playground. Original demo content and one complete guide to Nyanime extension APIs, Home categories, building, signing and testing.">
-<meta name="robots" content="noindex"><link rel="icon" href="/example/brand/mark.svg" type="image/svg+xml">
-<script>try{const t=localStorage.getItem('nyanime-theme');document.documentElement.dataset.theme=t==='light'||t==='dark'?t:matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'}catch{}</script>
-<link rel="stylesheet" href="/example/brand/nyanime.css?v=2"><link rel="stylesheet" href="/example/style.css?v=3">
-<script src="/example/playground.js?v=2" defer></script><title>''' + html.escape(title) + ''' · Nyanime</title></head><body>
-<a class="skip" href="#main">Skip to content</a><div class="site-shell">
-<header class="header glass"><a href="/" class="brand" aria-label="Nyanime home"><img class="logo dark-logo" src="/example/brand/logo-dark.svg" width="164" height="47" alt="Nyanime"><img class="logo light-logo" src="/example/brand/logo-light.svg" width="164" height="47" alt="Nyanime"></a><a class="playground-label" href="/example/">Playground <span>FOR CREATORS</span></a><nav aria-label="Playground navigation"><a class="desktop-nav" href="/example/#demos">Demos</a><a class="nav-download" href="/example/guide/">Start building <span aria-hidden="true">↗</span></a><button class="theme-button" aria-label="Switch to light theme"><svg class="theme-icon theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg><svg class="theme-icon theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.5 14.4A8.6 8.6 0 0 1 9.6 3.5a8.6 8.6 0 1 0 10.9 10.9Z"/></svg></button></nav></header>
-''' + body + '''
-<footer class="footer playground-footer"><div class="footer-main"><a href="/example/" class="footer-wordmark">Made to be <span class="accent-text">made yours.</span></a><nav aria-label="Developer links"><a href="/example/guide/">Developer guide</a><a href="/example/guide/#choosing-a-family">API overview</a><a href="/example/guide/#release-checklist">Release checklist</a><a href="/example/ASSETS.md">Media credits</a></nav></div><p class="copyright-position"><strong>Nyanime does not promote piracy in any way or form.</strong><br>Bring your own content. Respect creators and copyright. <a href="https://owouwuiwi.github.io/responsible-use/">Our position ↗</a></p><p>© 2026 owouwuiwi &amp; Nyanime contributors. Original demo media: CC0-1.0.<br>Extension code: Apache-2.0. Font licences are included with the starter.</p></footer></div></body></html>'''
+    template = (ROOT / 'web/shell.html').read_text(encoding='utf-8')
+    return template.replace('{{title}}', html.escape(title)).replace('{{body}}', body)
 
 
 def write(relative, text):
     path = SITE / relative
     path.parent.mkdir(parents=True, exist_ok=True)
+    family = relative.split('/')[0]
+    match = re.search(r'demo-(\d+)', relative)
+    number = (int(match[1]) - 1) % 3 + 1 if match else 1
+    if family in {'video', 'manga', 'news', 'tv'} and 'chapter-' not in relative:
+        art = '/example/art/' + (family + '-' + str(number) + '.svg' if family != 'tv' else 'tv.svg')
+        text = re.sub(r'(<img\b[^>]*src=")/example/images/[^"/]+\.png("[^>]*>)', lambda m: m[1] + art + m[2], text)
+        text = re.sub(r'poster="/example/images/[^"]+"', 'poster="' + art + '"', text)
     path.write_text(text, encoding='utf-8')
 
 
@@ -39,7 +37,15 @@ def breadcrumb(label, url='/example/'):
 
 
 def card(url, title, image, label, kind, description):
-    return '<a class="demo-card glass" data-kind="' + kind + '" data-reveal href="/example/' + url + '"><div class="demo-art"><img src="/example/' + image + '" width="600" height="900" alt="" loading="lazy" decoding="async"><span class="demo-type">' + label + '</span><span class="demo-open" aria-hidden="true">↗</span></div><div class="demo-copy"><h3>' + html.escape(title) + '</h3><p>' + html.escape(description) + '</p></div></a>'
+    match = re.search(r'demo-(\d+)', url)
+    index = int(match[1]) if match else 1
+    art = 'tv.svg' if kind == 'tv' else kind + '-' + str((index - 1) % 3 + 1) + '.svg'
+    title = title.replace('DEMO ', '').replace('article', 'Article')
+    details = {'video': '3 episodes · Qualities & subtitles', 'manga': '3 chapters · Ordered pages', 'news': 'Native article · Text & images', 'tv': 'Finite signal · No live guide'}
+    return ('<a class="demo-card glass" data-kind="' + kind + '" href="/example/' + url + '">'
+            '<div class="demo-art"><img src="/example/art/' + art + '" width="960" height="640" alt="" loading="lazy" decoding="async"><span class="demo-open" aria-hidden="true">↗</span></div>'
+            '<div class="demo-copy"><p class="demo-type">' + ('TV' if kind == 'tv' else kind.title()) + '<span>DEMO ' + f'{index:02}' + '</span></p>'
+            '<h3>' + html.escape(title) + '</h3><p>' + details[kind] + '</p></div></a>')
 
 
 def enhance(entries, articles):
@@ -49,13 +55,15 @@ def enhance(entries, articles):
     if brand.is_dir():
         shutil.copytree(brand, SITE / 'brand', dirs_exist_ok=True)
 
-    cards = ''.join(card(e['url'], e['title'], e['cover'], 'WATCH' if e['medium'] == 'anime' else 'READ',
-                         'video' if e['medium'] == 'anime' else 'manga', e['genre'] + ' · 3 original ' + ('episodes' if e['medium'] == 'anime' else 'chapters')) for e in entries)
-    cards += ''.join(card(a['url'], a['title'], a['image'], 'NEWS', 'news', 'Original article · Native reading blocks') for a in articles)
-    cards += card('tv/test-signal/', 'The quiet channel.', 'images/video-03-wide.png', 'TV DEMO', 'tv', 'Finite synthetic signal · No live guide')
-    hero = '''<section class="playground-hero"><div class="playground-hero-copy"><p class="eyebrow" data-reveal><span class="status-dot" aria-hidden="true"></span> THE EXTENSION PLAYGROUND</p><h1 data-reveal>Your next extension.<br><span class="accent-text">Starts here.</span></h1><p class="hero-description" data-reveal>A little world to build with.<br>Real pages. Original stories. Your own possibilities.</p><div class="hero-actions" data-reveal><a class="button primary" href="guide/">Read the developer guide <span aria-hidden="true">↗</span></a><a class="text-link" href="#demos">Explore the demos <span aria-hidden="true">↓</span></a></div><p class="micro" data-reveal>Open source · No sign-in · Original demo media</p></div><div class="playground-stage" aria-hidden="true"><div class="stage-orbit"></div><div class="stage-spark spark-one">✦</div><div class="stage-spark spark-two">✦</div><div class="stage-book book-back"><img src="images/manga-02.png" alt="" width="600" height="900"></div><div class="stage-book book-front"><img src="images/video-01.png" alt="" width="600" height="900"></div><div class="stage-caption glass"><span class="stage-caption-icon">✦</span><div><small>ONE EXTENSION.</small><strong>A whole new Home.</strong></div><span aria-hidden="true">↗</span></div></div></section>'''
-    filters = '<div class="demo-filters t-tabs" role="group" aria-label="Filter demo types"><span class="t-tabs-pill" aria-hidden="true"></span>' + ''.join('<button class="t-tab" type="button" data-filter="'+key+'" aria-pressed="'+('true' if key=='all' else 'false')+'">'+label+'</button>' for key,label in [('all','All'),('video','Video'),('manga','Manga'),('news','News'),('tv','TV')]) + '</div>'
-    body = '<main id="main">' + hero + '''<div class="intro-strip playground-strip"><div data-reveal><span class="strip-icon" aria-hidden="true">◈</span><p>One starting point.<small>Video, manga, news and TV.</small></p></div><div data-reveal><span class="strip-icon" aria-hidden="true">✦</span><p>Entirely original.<small>No third-party stories or streams.</small></p></div><div data-reveal><span class="strip-icon" aria-hidden="true">↗</span><p>Ready to make yours.<small>Source, tools and clear documentation.</small></p></div></div><section class="section" id="demos"><div class="section-heading demo-heading" data-reveal><div><p class="eyebrow">A SMALL WORLD. REAL POSSIBILITIES.</p><h2>Take it for a spin.</h2></div><p>Open a story, play a clip, turn a page.<br>These are the pages the extensions actually read.</p></div>''' + filters + '<p class="demo-count" role="status" aria-live="polite">22 demos to explore</p><div class="demo-grid">' + cards + '</div></section>' + '''<section class="section developer-paths" aria-labelledby="paths-title"><div class="section-heading" data-reveal><p class="eyebrow">ONE GUIDE. EVERYTHING CONNECTED.</p><h2 id="paths-title">From first build.<br>To your own extension.</h2></div><a href="guide/" class="path-card glass guide-path" data-reveal><span class="path-number" aria-hidden="true">⌘</span><div><p class="eyebrow">THE COMPLETE DEVELOPER GUIDE</p><h3>Understand it. Build it. Make it yours.</h3><p>Public APIs explained with real code, website parsing, dynamic Home categories, signing, installation and testing. One guide, with an index to find what you need.</p><span class="text-link">Open the guide <span aria-hidden="true">↗</span></span></div></a></section><section class="section"><div class="starter-panel glass" data-reveal><div><p class="eyebrow">MAKE SOMETHING OF YOUR OWN</p><h2>Take the starter.<br><span class="accent-text">Make it yours.</span></h2><p>Six examples, a matching SDK, original fixtures and tests.</p></div><a href="https://github.com/owouwuiwi/nyanime-extension-template/releases/download/v1.0.1/placeholder-extension-kit.zip" class="button primary">Download the kit <span aria-hidden="true">↓</span></a></div></section></main>'''
+    shutil.copytree(ROOT / 'web/art', SITE / 'art', dirs_exist_ok=True)
+    grouped = {'video': [], 'manga': [], 'news': [], 'tv': []}
+    for entry in entries:
+        kind = 'video' if entry['medium'] == 'anime' else 'manga'
+        grouped[kind].append(card(entry['url'], entry['title'], entry['cover'], '', kind, ''))
+    grouped['news'] = [card(a['url'], a['title'], a['image'], '', 'news', '') for a in articles]
+    grouped['tv'] = [card('tv/test-signal/', 'The quiet channel.', '', '', 'tv', '')]
+    cards = ''.join(grouped[kind][i] for i in range(max(map(len, grouped.values()))) for kind in grouped if i < len(grouped[kind]))
+    body = (ROOT / 'web/playground.html').read_text(encoding='utf-8').replace('{{demo_cards}}', cards)
     write('index.html', shell('Extension playground', body))
 
     for entry in entries:

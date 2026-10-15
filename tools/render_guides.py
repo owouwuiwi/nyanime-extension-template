@@ -26,6 +26,8 @@ def web_link(source, href):
     fragment = '#' + parsed.fragment if parsed.fragment else ''
     if relative in {'docs/GUIDE.md', 'docs/REFERENCE.md'}:
         return '/example/guide/' + fragment
+    if relative == 'docs/INTEROPERABILITY.md':
+        return '/example/guide/#for-existing-extension-authors'
     if relative == 'docs/CHECKLIST.md':
         return '/example/guide/#release-checklist'
     if relative == 'website/ASSETS.md':
