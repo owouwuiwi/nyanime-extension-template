@@ -47,15 +47,17 @@ subprojects {
             add(
                 "compileOnly",
                 files(
-                    rootProject.file("sdk/source-api.jar"),
+                    rootProject.file(if (project.name == "manga") "sdk/aniyomi-manga-api.jar"
+                        else if (project.name == "video") "sdk/aniyomi-video-api.jar" else "sdk/source-api.jar"),
                     rootProject.file("sdk/core-common.jar"),
                     rootProject.file("sdk/news-api.jar"),
                     rootProject.file("sdk/tv-api.jar"),
+                    rootProject.file("sdk/addon-api.jar"),
                 ),
             )
             add("compileOnly", "org.jetbrains.kotlin:kotlin-stdlib:2.4.0")
             add("compileOnly", "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-            add("compileOnly", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+            add("compileOnly", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
             add("compileOnly", "com.squareup.okhttp3:okhttp:5.4.0")
             add("compileOnly", "org.jsoup:jsoup:1.22.2")
             add("compileOnly", "io.reactivex:rxjava:1.3.8")

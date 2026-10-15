@@ -21,4 +21,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "PlaceholderExtensions"
-include(":common", ":video", ":manga", ":news", ":tv")
+include(":common", ":video", ":manga", ":news", ":tv", ":guide", ":addon")

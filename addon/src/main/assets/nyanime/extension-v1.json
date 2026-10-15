@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "id": "example.placeholder.addon",
+  "label": "Developer demo",
+  "updatePolicy": "manual"
+}

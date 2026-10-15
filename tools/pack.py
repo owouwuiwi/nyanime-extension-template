@@ -1,18 +1,13 @@
 #!/usr/bin/env python3
-"""Build signed RINs from compiled extension containers. No app or catalogue keys are used."""
+"""Read-only legacy helpers and shared APK signing primitives. New releases use sign_apk.py."""
 import argparse
-import hashlib
 import json
-import re
 import struct
-import os
-from verify_rin import verify
-import zipfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import rsa, ec, padding
+from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -60,59 +55,7 @@ def development_key():
     return keyfile,certfile
 
 def pack(kind,apk,keyfile,certfile,output):
-    config=json.loads((ROOT/'template.json').read_text())
-    module=config['modules'][kind]
-    if kind=='news':raise ValueError('News API v1 currently uses APK distribution; do not invent a news RIN schema.')
-    if not (ROOT/'sdk/sdk-lock.json').is_file():raise ValueError('Export the compile-only SDK first.')
-    payload={}
-    all_classes=[]
-    with zipfile.ZipFile(apk) as archive:
-        entries=archive.infolist()
-        if len({item.filename for item in entries})!=len(entries):raise ValueError('Duplicate APK entry')
-        for entry in entries:
-            name=entry.filename
-            if re.fullmatch(r'classes(?:[2-9][0-9]*)?\.dex',name) or name.startswith('assets/') and not entry.is_dir():
-                if '..' in name.split('/') or '\\' in name:raise ValueError('Unsafe APK payload name')
-                data=archive.read(entry)
-                if name.endswith('.dex'):
-                    classes=defined_classes(data)
-                    validate_classes(classes)
-                    all_classes.extend(classes)
-                payload[name]=data
-    if not any(descriptor.startswith('Lexample/placeholder/') for descriptor in all_classes):
-        raise ValueError('Extension DEX defines no implementation classes')
-    if 'classes.dex' not in payload:raise ValueError('Compile the extension before packaging RIN')
-    manifest={'schema':2 if kind=='tv' else 1,'packageName':module['package'],'name':module['name'],
-        'versionCode':config['versionCode'],'versionName':config['versionName'],'medium':module['medium'],
-        'extensionLib':module['api'],'entryPoints':[f'example.placeholder.{kind}.{kind.title() if kind!="tv" else "Tv"}Factory'],
-        'sources':[{'id':module['sourceId'],'name':module['name'],'language':config['language']}],
-        'minHostVersionCode':config['minimumHostVersionCode'],
-        'hashes':{name:hashlib.sha256(data).hexdigest() for name,data in sorted(payload.items())}}
-    raw=json.dumps(manifest,ensure_ascii=False,separators=(',',':')).encode()
-    if len(raw)>65536 or sum(map(len,payload.values()))>30*1024*1024:raise ValueError('RIN payload exceeds host limits')
-    key=serialization.load_pem_private_key(Path(keyfile).read_bytes(),password=None)
-    certificate=x509.load_der_x509_certificate(Path(certfile).read_bytes())
-    if key.public_key().public_bytes(serialization.Encoding.DER,serialization.PublicFormat.SubjectPublicKeyInfo)!=certificate.public_key().public_bytes(serialization.Encoding.DER,serialization.PublicFormat.SubjectPublicKeyInfo):raise ValueError('Signing key does not match publisher certificate')
-    if isinstance(key,rsa.RSAPrivateKey):signature=key.sign(raw,padding.PKCS1v15(),hashes.SHA256())
-    elif isinstance(key,ec.EllipticCurvePrivateKey):signature=key.sign(raw,ec.ECDSA(hashes.SHA256()))
-    else:raise ValueError('RIN supports RSA and EC keys only')
-    output=Path(output);output.parent.mkdir(parents=True,exist_ok=True)
-    temporary=output.with_suffix('.rin.partial')
-    with zipfile.ZipFile(temporary,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as archive:
-        for name,data in sorted(payload.items()):archive.writestr(name,data)
-        archive.writestr('manifest.json',raw)
-        archive.writestr('META-INF/rin.cert',Path(certfile).read_bytes())
-        archive.writestr('META-INF/rin.sig',signature)
-    try:
-        verify(temporary, hashlib.sha256(Path(certfile).read_bytes()).hexdigest())
-        os.replace(temporary, output)
-    finally:
-        temporary.unlink(missing_ok=True)
-    report={'file':output.name,'sha256':hashlib.sha256(output.read_bytes()).hexdigest(),
-            'publisher':hashlib.sha256(Path(certfile).read_bytes()).hexdigest(),'manifest':manifest}
-    output.with_suffix('.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
-    print('Packaged '+output.name+'; publisher fingerprint: '+report['publisher'])
-    return report
+    raise ValueError("New extensions are signed APKs. Use tools/sign_apk.py.")
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)

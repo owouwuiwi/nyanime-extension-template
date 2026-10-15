@@ -32,8 +32,9 @@ def export(host, build=False):
         target=sdk/(name+'.jar')
         shutil.copyfile(source,target)
         tracked=subprocess.check_output(['git','ls-files',module+'/src',module+'/build.gradle.kts'],cwd=host,text=True).splitlines()
+        tracked += subprocess.check_output(['git','ls-files','--others','--exclude-standard',module+'/src'],cwd=host,text=True).splitlines()
         digest=hashlib.sha256()
-        for path in sorted(tracked):
+        for path in sorted(set(tracked)):
             file=host/path
             if file.is_file():
                 digest.update(path.encode()+b'\0'+file.read_bytes()+b'\0')
@@ -43,7 +44,7 @@ def export(host, build=False):
                     shutil.copyfile(file,reference)
         records[name]={'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'sourceSha256':digest.hexdigest()}
     properties=dict(line.split('=',1) for line in (host/'release.properties').read_text().splitlines() if '=' in line and not line.startswith('#'))
-    lock={'sourceTag':'v'+properties['versionName'],'schema':1,'hostRevision':revision,'source':'https://github.com/owouwuiwi/nyanime',
+    lock={'sourceTag':'v'+properties['versionName'],'schema':1,'hostRevision':revision,'source':'https://github.com/owouwuiwi/nyanime-source',
           'compileOnly':True,'freshBuild':build,'modules':records}
     (sdk/'sdk-lock.json').write_text(json.dumps(lock,indent=2)+'\n',encoding='utf-8')
     for name in ['gradlew','gradlew.bat','gradle/wrapper/gradle-wrapper.jar','gradle/wrapper/gradle-wrapper.properties']:

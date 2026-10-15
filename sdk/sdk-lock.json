@@ -1,17 +1,18 @@
 {
+  "sourceTag": "v0.45.0.1",
   "schema": 1,
-  "hostRevision": "8a8f67ae19f29ded5cdea7da8d03226153b53bb7",
-  "source": "https://github.com/owouwuiwi/nyanime",
+  "hostRevision": "8ef5b7fe9ce8cd84adbf5b5a214e7b144d3972b2",
+  "source": "https://github.com/owouwuiwi/nyanime-source",
   "compileOnly": true,
   "freshBuild": true,
   "modules": {
     "source-api": {
-      "sha256": "655216678b40fcdf7ea94537052e699d4b6ee339c370a4b86f3f7b76d14fc344",
-      "sourceSha256": "b6ea22cbaf4959df4d791564f778ddf4ad10951882e8296739c5f5bc2815340a"
+      "sha256": "f52a7ba28567e2b9b9ae4ab50794dd3c8e6aa0c3631848b00047b6a6fbad98a1",
+      "sourceSha256": "10e7eba2ad1720e5e970cd7f8fadd3e0c7c996e880e994db06a531e1024a2975"
     },
     "core-common": {
-      "sha256": "7c027b2b75f3a04ece76a51bc608b1db79a65f7e196241af93c378461e520d75",
-      "sourceSha256": "8c868d24043037ac8b58e62ba0101c70100baa135a2ffa369bf94e844267604d"
+      "sha256": "235d49d24511481f06ba5bf3ad7d1175640d16a3dd9690a3d3433fb164353b3d",
+      "sourceSha256": "f1ffb1928de5688da21467fb23a6332207202fb19e916f8279a225d7216c1f7d"
     },
     "news-api": {
       "sha256": "2f056c6892b888b0aeeb500f8e7df556d88bf474e4b913981b2a44f478c3112b",
@@ -22,9 +23,8 @@
       "sourceSha256": "43b4477b926d80b81f6d55b9979bdec266dbc900c50bf8bc0695d52875c31bfd"
     },
     "addon-api": {
-      "sha256": "1358ef85c8d52ab85f23ea1e04d29b7c81a8617f7a2badac1f1eac7a64130bd1",
-      "sourceSha256": "c262fd06e5052db15b41192bf011c2e535ba53ea7fcf7f29964b5d2f29b5f65a"
+      "sha256": "50c1c11cc45cf8e3957d2e47108b23e33a196592b2978b0c50e635cb41b9920a",
+      "sourceSha256": "38dbac807d20a82309536359558419ecdda12743fed76d9942a76f5ae3684198"
     }
-  },
-  "sourceTag": "v0.43.0.3"
+  }
 }

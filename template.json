@@ -2,13 +2,51 @@
   "schema": 1,
   "baseUrl": "https://owouwuiwi.github.io/example/",
   "language": "en",
-  "versionCode": 1,
-  "versionName": "1.0.0",
-  "minimumHostVersionCode": 232,
+  "versionCode": 2,
+  "versionName": "1.0.1",
+  "minimumHostVersionCode": 237,
   "modules": {
-    "video": {"package": "example.placeholder.video", "name": "DEMO Video", "sourceId": 481001001, "medium": "anime", "api": 17.0},
-    "manga": {"package": "example.placeholder.manga", "name": "DEMO Manga", "sourceId": 481001002, "medium": "manga", "api": 1.6},
-    "news": {"package": "example.placeholder.news", "name": "DEMO News", "sourceId": 481001003, "medium": "news", "api": 1.0},
-    "tv": {"package": "example.placeholder.tv", "name": "DEMO TV", "sourceId": 481001004, "medium": "tv", "api": 1.0}
+    "video": {
+      "package": "example.placeholder.video",
+      "name": "DEMO Video",
+      "sourceId": 481001001,
+      "medium": "anime",
+      "api": 17.0
+    },
+    "manga": {
+      "package": "example.placeholder.manga",
+      "name": "DEMO Manga",
+      "sourceId": 481001002,
+      "medium": "manga",
+      "api": 1.4
+    },
+    "news": {
+      "package": "example.placeholder.news",
+      "name": "DEMO News",
+      "sourceId": 481001003,
+      "medium": "news",
+      "api": 1.0
+    },
+    "tv": {
+      "package": "example.placeholder.tv",
+      "name": "DEMO TV",
+      "sourceId": 481001004,
+      "medium": "tv",
+      "api": 1.0
+    },
+    "guide": {
+      "package": "example.placeholder.guide",
+      "name": "DEMO Guide",
+      "sourceId": 481001005,
+      "medium": "guide",
+      "api": 1.0
+    },
+    "addon": {
+      "package": "example.placeholder.addon",
+      "name": "DEMO Addon",
+      "sourceId": 481001006,
+      "medium": "addon",
+      "api": 1.0
+    }
   }
 }

@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "packageName": "example.placeholder.manga",
+  "name": "DEMO Manga",
+  "versionCode": 2,
+  "versionName": "1.4.2",
+  "medium": "manga",
+  "extensionLib": 1.4,
+  "entryPoints": [
+    "example.placeholder.manga.MangaFactory"
+  ],
+  "sources": [
+    {
+      "id": 481001002,
+      "name": "DEMO Manga",
+      "language": "en"
+    }
+  ],
+  "hashes": {}
+}

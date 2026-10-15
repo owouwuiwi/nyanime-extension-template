@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "modules": {
+    "aniyomi-video-api": {
+      "sha256": "85913c74fa02583a6e2cfae28cf62d0bd1fd408eb32a412ef426d5f12ec726ac",
+      "coordinate": "com.github.komikku-app:aniyomi-extensions-lib:f5961b5dfb",
+      "source": "https://github.com/komikku-app/aniyomi-extensions-lib/tree/f5961b5dfb",
+      "license": "Apache-2.0",
+      "compileOnly": true
+    },
+    "aniyomi-manga-api": {
+      "sha256": "4bc386f3475d9c4e0c4402de97a1f6baee6b91f48d3e269349828af87685ee17",
+      "coordinate": "com.github.keiyoushi:extensions-lib:18a8e26be2",
+      "source": "https://github.com/keiyoushi/extensions-lib/tree/18a8e26be2",
+      "license": "Apache-2.0",
+      "compileOnly": true
+    }
+  }
+}

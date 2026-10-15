@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sign the news example with your owned publisher identity, never Android's shared debug key."""
+"""Sign an interoperable APK with your owned publisher identity."""
 import argparse
 import hashlib
 import json
@@ -15,7 +15,7 @@ from pack import development_key, defined_classes, validate_classes
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def sign(apk, output, keyfile, certificate_file, build_tools):
+def sign(apk, output, keyfile, certificate_file, build_tools, kind="news"):
     sdk_tools = Path(build_tools)
     suffix = '.exe' if os.name == 'nt' else ''
     java_home = os.environ.get('JAVA_HOME')
@@ -23,15 +23,15 @@ def sign(apk, output, keyfile, certificate_file, build_tools):
     signer = [java, '-jar', str(sdk_tools / 'lib/apksigner.jar')]
     config = json.loads((ROOT / 'template.json').read_text())
     badging = subprocess.check_output([str(sdk_tools / ('aapt2' + suffix)), 'dump', 'badging', str(apk)], text=True)
-    if "name='" + config['modules']['news']['package'] + "'" not in badging.splitlines()[0]:
-        raise ValueError('This is not the configured news APK')
+    if "name='" + config['modules'][kind]['package'] + "'" not in badging.splitlines()[0]:
+        raise ValueError('APK package does not match the configured module')
     if 'application-debuggable' in badging:
-        raise ValueError('Build :news:assembleRelease first; do not distribute a debuggable APK')
+        raise ValueError('Build the module assembleRelease task first; do not distribute a debuggable APK')
     with zipfile.ZipFile(apk) as archive:
         classes = [descriptor for name in archive.namelist() if name.endswith('.dex') for descriptor in defined_classes(archive.read(name))]
         validate_classes(classes)
-        if not any(name.startswith('Lexample/placeholder/news/') for name in classes):
-            raise ValueError('News implementation missing')
+        if not any(name.startswith('Lexample/placeholder/'+kind+'/') for name in classes):
+            raise ValueError('Extension implementation missing')
     key = serialization.load_pem_private_key(Path(keyfile).read_bytes(), None)
     certificate = x509.load_der_x509_certificate(Path(certificate_file).read_bytes())
     public_format = (serialization.Encoding.DER, serialization.PublicFormat.SubjectPublicKeyInfo)
@@ -55,13 +55,14 @@ def sign(apk, output, keyfile, certificate_file, build_tools):
     report = {'file': output.name, 'sha256': hashlib.sha256(output.read_bytes()).hexdigest(),
               'publisher': hashlib.sha256(Path(certificate_file).read_bytes()).hexdigest(), 'debuggable': False}
     output.with_suffix('.json').write_text(json.dumps(report, indent=2) + '\n')
-    print('Signed non-debug news APK: ' + output.name + '; publisher: ' + report['publisher'])
+    print('Signed non-debug extension APK: ' + output.name + '; publisher: ' + report['publisher'])
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('kind', choices=['video','manga','news','tv','guide','addon'], nargs='?', default='news')
     parser.add_argument('--build-tools', type=Path, required=True)
-    parser.add_argument('--apk', type=Path, default=ROOT / 'news/build/outputs/apk/release/news-release-unsigned.apk')
+    parser.add_argument('--apk', type=Path, default=None)
     parser.add_argument('--output', type=Path)
     parser.add_argument('--development', action='store_true')
     parser.add_argument('--key', type=Path)
@@ -76,4 +77,4 @@ if __name__ == '__main__':
             parser.error('Supply your publisher key/certificate, or --development for the demo identity')
         key, certificate = args.key, args.certificate
     version = json.loads((ROOT / 'template.json').read_text())['versionName']
-    sign(args.apk, args.output or ROOT / 'dist' / ('placeholder-news-' + version + '.apk'), key.resolve(), certificate.resolve(), args.build_tools.resolve())
+    sign(args.apk or ROOT / args.kind / ('build/outputs/apk/release/' + args.kind + '-release-unsigned.apk'), args.output or ROOT / 'dist' / ('placeholder-' + args.kind + '-' + version + '.apk'), key.resolve(), certificate.resolve(), args.build_tools.resolve(), args.kind)

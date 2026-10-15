@@ -1,0 +1,21 @@
+{
+  "schema": 2,
+  "packageName": "example.placeholder.tv",
+  "name": "DEMO TV",
+  "versionCode": 2,
+  "versionName": "1.0.1",
+  "medium": "tv",
+  "extensionLib": 1.0,
+  "entryPoints": [
+    "example.placeholder.tv.TvFactory"
+  ],
+  "sources": [
+    {
+      "id": 481001004,
+      "name": "DEMO TV",
+      "language": "en"
+    }
+  ],
+  "hashes": {},
+  "minHostVersionCode": 237
+}

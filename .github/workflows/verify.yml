@@ -23,11 +23,21 @@ jobs:
       - name: Verify tools and original fixtures
         run: python -m unittest discover -s tests -v
       - name: Test parsers and compile all examples
-        run: ./gradlew :common:test :video:assembleDebug :manga:assembleDebug :news:assembleDebug :news:assembleRelease :tv:assembleDebug --max-workers=2
-      - name: Verify extension-only DEX and RIN signatures
+        run: ./gradlew :common:test :video:assembleRelease :manga:assembleRelease :news:assembleRelease :tv:assembleRelease :guide:assembleRelease :addon:assembleRelease --max-workers=2
+      - name: Verify compiled base ABI profiles
         run: |
-          python tools/pack.py video --development
-          python tools/pack.py manga --development
-          python tools/pack.py tv --development
+          python tools/check_abi.py --profile aniyomi-video-api --classes video/build/tmp/kotlin-classes/release
+          python tools/check_abi.py --profile aniyomi-manga-api --classes manga/build/tmp/kotlin-classes/release
+          for module in video manga news tv guide addon; do
+            python tools/check_abi.py --profile nyanime --classes "$module/build/tmp/kotlin-classes/release"
+          done
+      - name: Verify extension-only APKs and publisher signatures
+        run: |
+          python tools/sign_apk.py video --development --build-tools "$ANDROID_HOME/build-tools/35.0.1"
+          python tools/sign_apk.py manga --development --build-tools "$ANDROID_HOME/build-tools/35.0.1"
+          python tools/sign_apk.py tv --development --build-tools "$ANDROID_HOME/build-tools/35.0.1"
+          python tools/sign_apk.py news --development --build-tools "$ANDROID_HOME/build-tools/35.0.1"
+          python tools/sign_apk.py guide --development --build-tools "$ANDROID_HOME/build-tools/35.0.1"
+          python tools/sign_apk.py addon --development --build-tools "$ANDROID_HOME/build-tools/35.0.1"
       # Deliberately no artifact upload: CI-generated publisher keys are ephemeral
       # and are never used to publish an extension or a trusted update.

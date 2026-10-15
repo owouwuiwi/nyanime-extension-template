@@ -1,0 +1,15 @@
+{
+  "schema": 2,
+  "packageName": "example.placeholder.news",
+  "name": "DEMO News",
+  "versionCode": 2,
+  "versionName": "1.0.1",
+  "medium": "news",
+  "extensionLib": 1.0,
+  "entryPoints": [
+    "example.placeholder.news.NewsFactory"
+  ],
+  "sources": [],
+  "hashes": {},
+  "minHostVersionCode": 237
+}

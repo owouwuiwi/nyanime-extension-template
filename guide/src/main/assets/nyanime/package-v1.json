@@ -1,0 +1,25 @@
+{
+  "schema": 2,
+  "packageName": "example.placeholder.guide",
+  "name": "DEMO Guide",
+  "versionCode": 2,
+  "versionName": "1.0.1",
+  "medium": "guide",
+  "extensionLib": 1.0,
+  "entryPoints": [
+    "example.placeholder.guide.GuideFactory"
+  ],
+  "sources": [],
+  "hashes": {},
+  "minHostVersionCode": 237,
+  "guide": {
+    "api": 1,
+    "capabilities": [
+      "episode-guides.v1"
+    ],
+    "descriptions": {
+      "en": "Synthetic episode-guide provider for integration verification.",
+      "it": "Provider dimostrativo per verificare le guide degli episodi."
+    }
+  }
+}

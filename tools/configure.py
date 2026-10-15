@@ -20,8 +20,8 @@ def configure(root=ROOT):
         raise ValueError('versionName must be a dotted numeric version.')
     if type(config.get('minimumHostVersionCode')) is not int or config['minimumHostVersionCode'] < 232:
         raise ValueError('Standalone local import requires a compatible host (232+).')
-    if set(config['modules']) != {'video','manga','news','tv'}:
-        raise ValueError('Keep the four example module declarations, even when building only one.')
+    if set(config['modules']) != {'video','manga','news','tv','guide','addon'}:
+        raise ValueError('Keep the six example module declarations, even when building only one.')
     ids=[]
     packages=[]
     for module in config['modules'].values():
@@ -38,7 +38,7 @@ def configure(root=ROOT):
     if len(set(ids)) != len(ids) or len(set(packages)) != len(packages):
         raise ValueError('Each source needs a unique package and stable ID.')
     for kind,module in config['modules'].items():
-        if kind not in {'video','manga','news','tv'}: raise ValueError('Unknown extension family.')
+        if kind not in {'video','manga','news','tv','guide','addon'}: raise ValueError('Unknown extension family.')
         if not re.fullmatch(r'[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+',module['package']): raise ValueError('Invalid package name.')
         if type(module['sourceId']) is not int or not 0<module['sourceId']<2**63: raise ValueError('sourceId must fit a positive signed 64-bit integer.')
         assets=root/kind/'src/main/assets'
@@ -51,9 +51,12 @@ def configure(root=ROOT):
         if kind=='news':
             feature='nyanime.newsextension'
             metadata='<meta-data android:name="nyanime.news.api" android:value="1"/><meta-data android:name="nyanime.news.factory" android:value="example.placeholder.news.NewsFactory"/>'
+        elif kind in {'guide', 'addon'}:
+            feature = 'nyanime.guideextension' if kind == 'guide' else 'nyanime.addon'
+            metadata = f'<meta-data android:name="nyanime.{kind}.api" android:value="1"/><meta-data android:name="nyanime.{kind}.factory" android:value="example.placeholder.{kind}.{kind.title()}Factory"/>'
         elif kind=='tv':
-            # APK is only a build container; the supported distributable here is RIN.
             feature='nyanime.tvextension'
+            metadata='<meta-data android:name="nyanime.tv.api" android:value="1"/><meta-data android:name="nyanime.tv.factory" android:value="example.placeholder.tv.TvFactory"/>'
         else:
             feature='tachiyomi.animeextension' if kind=='video' else 'tachiyomi.extension'
             factory='example.placeholder.video.VideoFactory' if kind=='video' else 'example.placeholder.manga.MangaFactory'
@@ -64,6 +67,24 @@ def configure(root=ROOT):
         distribution=assets/'nyanime/extension-v1.json'
         distribution.parent.mkdir(parents=True,exist_ok=True)
         distribution.write_text(json.dumps({'version':1,'id':module['package'],'label':'Developer demo','updatePolicy':'manual'},indent=2)+'\n',encoding='utf-8')
+        descriptor={'schema':1 if kind in {'video','manga'} else 2,
+            'packageName':module['package'],'name':module['name'],'versionCode':config['versionCode'],
+            'versionName':str(module['api'])+'.'+str(config['versionCode']) if kind=='manga' else config['versionName'],
+            'medium':module['medium'],'extensionLib':module['api'],
+            'entryPoints':[f'example.placeholder.{kind}.{kind.title() if kind!="tv" else "Tv"}Factory'],
+            'sources':[{'id':module['sourceId'],'name':module['name'],'language':config['language']}] if kind in {'video', 'manga', 'tv'} else [],
+            'hashes':{}}
+        if kind not in {'video', 'manga'}:
+            descriptor['minHostVersionCode'] = config['minimumHostVersionCode']
+        if kind == 'guide':
+            descriptor['guide'] = {'api': 1, 'capabilities': ['episode-guides.v1'],
+                'descriptions': {'en': 'Synthetic episode-guide provider for integration verification.', 'it': 'Provider dimostrativo per verificare le guide degli episodi.'}}
+        if kind == 'addon':
+            descriptor['addon'] = {'api': 1, 'activation': 'more_action',
+                'actionLabel': {'en': 'Open demo', 'it': 'Apri demo'},
+                'actionSummary': {'en': 'Verify the hosted addon', 'it': 'Verifica l’addon integrato'},
+                'descriptions': {'en': 'Component-free addon example. It does not start background work.', 'it': 'Esempio di addon senza componenti Android e senza attività in background.'}}
+        (assets/'nyanime/package-v1.json').write_text(json.dumps(descriptor,indent=2)+'\n',encoding='utf-8')
         if kind in {'video','manga'}:
             def home(home_id,title,format_name=None):
                 return {'id':home_id,'title':title,'source':{'name':module['name'],'lang':config['language']},

@@ -1,0 +1,31 @@
+{
+  "schema": 2,
+  "packageName": "example.placeholder.addon",
+  "name": "DEMO Addon",
+  "versionCode": 2,
+  "versionName": "1.0.1",
+  "medium": "addon",
+  "extensionLib": 1.0,
+  "entryPoints": [
+    "example.placeholder.addon.AddonFactory"
+  ],
+  "sources": [],
+  "hashes": {},
+  "minHostVersionCode": 237,
+  "addon": {
+    "api": 1,
+    "activation": "more_action",
+    "actionLabel": {
+      "en": "Open demo",
+      "it": "Apri demo"
+    },
+    "actionSummary": {
+      "en": "Verify the hosted addon",
+      "it": "Verifica l\u2019addon integrato"
+    },
+    "descriptions": {
+      "en": "Component-free addon example. It does not start background work.",
+      "it": "Esempio di addon senza componenti Android e senza attivit\u00e0 in background."
+    }
+  }
+}

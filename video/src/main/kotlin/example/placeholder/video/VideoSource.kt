@@ -6,8 +6,6 @@ import eu.kanade.tachiyomi.animesource.model.AnimeFilterList
 import eu.kanade.tachiyomi.animesource.model.AnimesPage
 import eu.kanade.tachiyomi.animesource.model.Hoster
 import eu.kanade.tachiyomi.animesource.model.SAnime
-import eu.kanade.tachiyomi.animesource.model.SAnimeEpisodeUpdate
-import eu.kanade.tachiyomi.animesource.model.SAnimeSeasonUpdate
 import eu.kanade.tachiyomi.animesource.model.SEpisode
 import eu.kanade.tachiyomi.animesource.model.Track
 import eu.kanade.tachiyomi.animesource.model.Video
@@ -19,10 +17,9 @@ import example.placeholder.common.SiteAddress
 import example.placeholder.common.SiteParser
 import example.placeholder.common.SiteRepository
 import example.placeholder.common.readText
-import kotlinx.serialization.json.add
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.Request
+import okhttp3.Response
 import java.util.concurrent.TimeUnit
 
 class VideoFactory : AnimeSourceFactory {
@@ -101,36 +98,13 @@ class VideoSource : AnimeHttpSource() {
 
     override suspend fun getEpisodeList(anime: SAnime) = site.details(anime.url).parts.map(::episode)
 
-    // One HTML fetch when details and episodes are requested together: no duplicated extraction.
-    override suspend fun getAnimeEpisodeUpdate(
-        anime: SAnime,
-        episodes: List<SEpisode>,
-        fetchDetails: Boolean,
-        fetchEpisodes: Boolean,
-    ): SAnimeEpisodeUpdate {
-        if (!fetchDetails && !fetchEpisodes) return SAnimeEpisodeUpdate(anime, episodes)
-        val details = site.details(anime.url)
-        return SAnimeEpisodeUpdate(
-            if (fetchDetails) asAnime(details.entry) else anime,
-            if (fetchEpisodes) details.parts.map(::episode) else episodes,
-        )
-    }
-
-    override suspend fun getAnimeSeasonUpdate(
-        anime: SAnime,
-        seasons: List<SAnime>,
-        fetchDetails: Boolean,
-        fetchSeasons: Boolean,
-    ) = SAnimeSeasonUpdate(if (fetchDetails) getAnimeDetails(anime) else anime, if (fetchSeasons) emptyList() else seasons)
+    override suspend fun getSeasonList(anime: SAnime): List<SAnime> = emptyList()
 
     override suspend fun getHosterList(episode: SEpisode) =
         listOf(
             Hoster(
                 hosterUrl = address.url(episode.url),
                 hosterName = "Original demo media",
-                memo =
-                    buildJsonObject {
-                    },
             ),
         )
 
@@ -157,25 +131,6 @@ class VideoSource : AnimeHttpSource() {
             genre = entry.genre
             status = SAnime.COMPLETED
             initialized = true
-            memo =
-                buildJsonObject {
-                    put(
-                        "aniyomi.home.v1",
-                        buildJsonObject {
-                            put("version", 1)
-                            put("logoUrl", address.url("images/logo.png"))
-                            put("logoName", "Placeholder Studio")
-                            put("logoBackground", "dark")
-                            put(
-                                "badges",
-                                buildJsonArray {
-                                    add("DEMO")
-                                    add(entry.format)
-                                },
-                            )
-                        },
-                    )
-                }
             // Do not invent MAL/AniList IDs. Add only verified external IDs when adapting this source.
         }
 
@@ -188,4 +143,49 @@ class VideoSource : AnimeHttpSource() {
             summary = "Original synthetic demonstration episode"
             fillermark = false
         }
+
+    // Retain coherent HTTP hooks for hosts using the original API entry points.
+    private fun request(reference: String) = Request.Builder().url(address.url(reference)).headers(headers).build()
+
+    private fun listingRequest(page: Int, query: Query): Request {
+        require(page in 1..1000)
+        val url = address.url("api/catalogue.json").toHttpUrl().newBuilder()
+            .addQueryParameter("page", page.toString())
+            .addQueryParameter("q", query.text)
+            .addQueryParameter("genre", query.genre)
+            .addQueryParameter("order", query.order)
+            .addQueryParameter("date", query.date)
+            .addQueryParameter("format", query.format)
+            .build()
+        return Request.Builder().url(url).headers(headers).build()
+    }
+
+    override fun popularAnimeRequest(page: Int) = listingRequest(page, Query())
+    override fun latestUpdatesRequest(page: Int) = listingRequest(page, Query(order = "Latest"))
+    override fun searchAnimeRequest(page: Int, query: String, filters: AnimeFilterList) = listingRequest(page, options(query, filters))
+
+    override fun popularAnimeParse(response: Response) = response.use {
+        val url = it.request.url
+        val query = Query(url.queryParameter("q").orEmpty(), url.queryParameter("genre") ?: "All",
+            url.queryParameter("order") ?: "Popular", url.queryParameter("date").orEmpty(), url.queryParameter("format") ?: "All")
+        SiteParser.page(SiteParser.catalogue(it.body.string(), address), "anime", url.queryParameter("page")?.toIntOrNull() ?: 1, query)
+            .let { result -> AnimesPage(result.entries.map(::asAnime), result.hasNext) }
+    }
+    override fun latestUpdatesParse(response: Response) = popularAnimeParse(response)
+    override fun searchAnimeParse(response: Response) = popularAnimeParse(response)
+    override fun animeDetailsRequest(anime: SAnime) = request(anime.url)
+    override fun episodeListRequest(anime: SAnime) = request(anime.url)
+    override fun animeDetailsParse(response: Response) = response.use { asAnime(SiteParser.details(it.body.string(), address).entry) }
+    override fun episodeListParse(response: Response) = response.use { SiteParser.details(it.body.string(), address).parts.map(::episode) }
+    override fun seasonListParse(response: Response): List<SAnime> = emptyList()
+    override fun hosterListRequest(episode: SEpisode) = request(episode.url)
+    override fun hosterListParse(response: Response) = response.use {
+        listOf(Hoster(hosterUrl = it.request.url.toString(), hosterName = "Original demo media"))
+    }
+    override fun videoListParse(response: Response, hoster: Hoster) = response.use {
+        SiteParser.streams(it.body.string(), address).map { stream ->
+            Video(videoUrl = stream.url, videoTitle = stream.label, resolution = stream.resolution,
+                subtitleTracks = stream.subtitles.map { Track(it.first, it.second) }, initialized = true)
+        }
+    }
 }
